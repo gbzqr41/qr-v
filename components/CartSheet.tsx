@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { X, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
 import { CartItem } from '../types.ts';
@@ -8,9 +9,10 @@ interface CartSheetProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, delta: number) => void;
   onRemove: (id: string) => void;
+  primaryColor: string;
 }
 
-const CartSheet: React.FC<CartSheetProps> = ({ isOpen, onClose, items, onUpdateQuantity, onRemove }) => {
+const CartSheet: React.FC<CartSheetProps> = ({ isOpen, onClose, items, onUpdateQuantity, onRemove, primaryColor }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   if (!isOpen) return null;
@@ -102,7 +104,10 @@ const CartSheet: React.FC<CartSheetProps> = ({ isOpen, onClose, items, onUpdateQ
                 <span>{total} TL</span>
               </div>
             </div>
-            <button className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-200">
+            <button 
+              className="w-full text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl shadow-slate-200"
+              style={{ backgroundColor: primaryColor }}
+            >
               <CreditCard className="w-5 h-5" /> Garson Çağır / Öde
             </button>
             <p className="text-[10px] text-center text-slate-400 font-bold uppercase">

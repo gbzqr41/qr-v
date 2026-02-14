@@ -5,9 +5,10 @@ import { Info, Star } from 'lucide-react';
 interface NavbarProps {
   onFeedbackClick: () => void;
   onInfoClick: () => void;
+  restaurantName: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onFeedbackClick, onInfoClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ onFeedbackClick, onInfoClick, restaurantName }) => {
   return (
     <nav className="h-[60px] bg-white px-4 md:px-8 flex items-center justify-between">
       <div className="flex items-center gap-[10px]">
@@ -18,7 +19,7 @@ const Navbar: React.FC<NavbarProps> = ({ onFeedbackClick, onInfoClick }) => {
           <Info size={22} className="text-slate-600" />
         </button>
         <span className="text-lg font-bold text-slate-900">
-          Resital Lounge
+          {restaurantName}
         </span>
       </div>
 

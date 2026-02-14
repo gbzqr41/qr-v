@@ -5,9 +5,10 @@ import { X, Star, Send, User, Phone, CheckCircle2 } from 'lucide-react';
 interface FeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
+  primaryColor: string;
 }
 
-const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
+const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, primaryColor }) => {
   const [ratings, setRatings] = useState({ food: 0, service: 0, ambiance: 0 });
   const [hovers, setHovers] = useState({ food: 0, service: 0, ambiance: 0 });
   const [comment, setComment] = useState('');
@@ -59,12 +60,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = () => {
     setIsSubmitted(true);
-    // Gerçek bir uygulamada burada veriler API'ye gönderilir.
   };
 
   return (
     <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-fade-in">
-      {/* Header with Close */}
       <div className="h-[60px] px-4 flex items-center justify-between border-b border-slate-100 shrink-0">
         <h2 className="text-lg font-bold text-slate-900 pl-2">Geri Bildirim</h2>
         <button 
@@ -75,7 +74,6 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
         </button>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-10 flex flex-col items-center max-w-lg mx-auto w-full">
         {isSubmitted ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center animate-scale-in py-20">
@@ -104,21 +102,12 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
               Size daha iyi hizmet verebilmemiz için görüşleriniz bizim için çok değerli.
             </p>
 
-            {/* Detailed Ratings */}
             <div className="w-full mb-12">
               <RatingRow label="Yemek Lezzeti" category="food" />
               <RatingRow label="Servis Kalitesi" category="service" />
               <RatingRow label="Ambiyans & Atmosfer" category="ambiance" />
             </div>
 
-            {/* Info Message */}
-            <div className="w-full mb-6">
-               <p className="text-[11px] font-bold text-slate-400 bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
-                 * İşaretli alanların doldurulması isteğe bağlıdır.
-               </p>
-            </div>
-
-            {/* Name & Phone Inputs (Optional) */}
             <div className="w-full space-y-10 mb-12">
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center">
@@ -135,25 +124,8 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                   />
                 </div>
               </div>
-              
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center">
-                  * <span className="inline-block w-3"></span> Telefon (Opsiyonel)
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5" />
-                  <input
-                    type="tel"
-                    placeholder="Sizinle iletişime geçmemizi isterseniz..."
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4.5 pl-12 pr-4 text-base focus:ring-2 focus:ring-slate-900/5 outline-none no-zoom"
-                  />
-                </div>
-              </div>
             </div>
 
-            {/* Text Area */}
             <div className="w-full space-y-4 mb-12">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ek Notlarınız</label>
               <textarea
@@ -170,48 +142,23 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
               disabled={!canSubmit}
               className={`w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl
                 ${canSubmit 
-                  ? 'bg-slate-900 text-white shadow-slate-200 hover:bg-slate-800' 
+                  ? 'text-white shadow-slate-200 hover:opacity-90' 
                   : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'}
               `}
+              style={canSubmit ? { backgroundColor: primaryColor } : {}}
             >
               <Send className="w-5 h-5" /> Gönder
             </button>
-
-            <p className="mt-12 text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest pb-10">
-              Teşekkür Ederiz
-            </p>
           </>
         )}
       </div>
 
       <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scale-in {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        input, textarea {
-          padding-top: 1.125rem;
-          padding-bottom: 1.125rem;
-        }
-        /* Mobil cihazlarda otomatik yakınlaşmayı (zoom) önlemek için */
-        .no-zoom {
-          font-size: 16px !important;
-        }
-        @media screen and (max-width: 768px) {
-          input, textarea {
-            font-size: 16px !important;
-          }
-        }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scale-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .animate-fade-in { animation: fade-in 0.2s ease-out; }
+        .animate-scale-in { animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .no-zoom { font-size: 16px !important; }
       `}</style>
     </div>
   );
