@@ -1,9 +1,10 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Search, X, ArrowLeft } from 'lucide-react';
 import { CategoryType, Product } from '../types.ts';
-import { MENU_DATA } from '../constants.tsx';
 
 interface CategoryFilterProps {
+  products: Product[];
   activeCategory: CategoryType | null;
   onCategoryChange: (category: CategoryType | null, isManual?: boolean) => void;
   searchQuery: string;
@@ -12,6 +13,7 @@ interface CategoryFilterProps {
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ 
+  products,
   activeCategory, 
   onCategoryChange, 
   searchQuery, 
@@ -58,7 +60,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
     onCategoryChange(cat, true);
   };
 
-  const filteredResults = MENU_DATA.filter(p => 
+  const filteredResults = products.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     p.description.toLowerCase().includes(searchQuery.toLowerCase())
   );

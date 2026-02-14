@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingBag, Loader2 } from 'lucide-react';
+import { ShoppingBag, Loader2, UtensilsCrossed } from 'lucide-react';
 import Navbar from './components/Navbar.tsx';
 import CategoryFilter from './components/CategoryFilter.tsx';
 import ProductCard from './components/ProductCard.tsx';
@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [isAdminAuth, setIsAdminAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryType | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -37,12 +38,13 @@ const App: React.FC = () => {
     const fetchMenu = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        setError(null);
+        const { data, error: sbError } = await supabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: true });
 
-        if (error) throw error;
+        if (sbError) throw sbError;
         
         const formattedData: Product[] = (data || []).map(item => ({
           id: item.id,
@@ -50,15 +52,16 @@ const App: React.FC = () => {
           description: item.description,
           price: item.price,
           category: item.category_name as CategoryType,
-          image: item.image_url,
+          image: item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
           isPopular: item.is_popular,
           calories: item.calories,
           ingredients: item.ingredients || []
         }));
 
         setMenuItems(formattedData);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Menü çekilemedi:', err);
+        setError(err.message || 'Veritabanı bağlantı hatası');
       } finally {
         setLoading(false);
       }
@@ -111,7 +114,25 @@ const App: React.FC = () => {
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Menü Yükleniyor...</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lezzetler Hazırlanıyor...</p>
+        </div>
+      ) : error ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center">
+            <UtensilsCrossed className="w-8 h-8 text-rose-500" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Bir sorun oluştu</h2>
+          <p className="text-slate-500 text-sm max-w-xs">{error}</p>
+          <button onClick={() => window.location.reload()} className="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold">Tekrar Dene</button>
+        </div>
+      ) : menuItems.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+            <UtensilsCrossed className="w-8 h-8 text-slate-300" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Menü Henüz Boş</h2>
+          <p className="text-slate-500 text-sm max-w-xs">Admin paneline girerek ilk ürünlerinizi ekleyebilirsiniz.</p>
+          <button onClick={() => window.location.hash = '#admin'} className="text-slate-900 font-bold border-b border-slate-900">Admin Girişi</button>
         </div>
       ) : (
         <>
@@ -124,7 +145,14 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          <CategoryFilter activeCategory={activeCategory} onCategoryChange={handleCategoryChange} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} />
+          <CategoryFilter 
+            products={menuItems}
+            activeCategory={activeCategory} 
+            onCategoryChange={handleCategoryChange} 
+            searchQuery={searchQuery} 
+            onSearchChange={setSearchQuery} 
+            onProductSelect={setSelectedProduct} 
+          />
           
           <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
             <div className="flex flex-col gap-10 pb-20">
@@ -132,7 +160,7 @@ const App: React.FC = () => {
                 const productsInCategory = menuItems.filter(p => p.category === category);
                 if (productsInCategory.length === 0) return null;
                 return (
-                  <section key={category} id={category} ref={(el) => { sectionRefs.current[category] = el; }} className="scroll-mt-[135px]">
+                  <section key={category} id={category} ref={(el) => { if(el) sectionRefs.current[category] = el; }} className="scroll-mt-[135px]">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-black text-slate-900">{category}</h2>
                     </div>

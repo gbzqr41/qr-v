@@ -9,12 +9,13 @@ interface WelcomeScreenProps {
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
   return (
     <div className="fixed inset-0 z-[200] bg-slate-900 flex flex-col overflow-hidden">
-      {/* Background Image with Gradient Overlay */}
+      {/* Background Image with Gradient Overlay - Optimized for performance */}
       <div className="absolute inset-0">
         <img 
-          src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=1200" 
+          src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=60&w=800" 
           alt="Welcome Background" 
           className="w-full h-full object-cover opacity-60 scale-110 animate-slow-zoom"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
       </div>
