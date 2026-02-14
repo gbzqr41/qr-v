@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
-  Type, MousePointer2, Box
+  Type, MousePointer2, Box, Layout
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -32,6 +32,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
+  
+  // Header Ayarları
+  const [headerBgColor, setHeaderBgColor] = useState('#ffffff');
+  const [headerTextColor, setHeaderTextColor] = useState('#0f172a');
+  const [headerIconBgColor, setHeaderIconBgColor] = useState('#f1f5f9');
+  const [headerIconColor, setHeaderIconColor] = useState('#475569');
 
   const fetchData = async () => {
     setLoading(true);
@@ -45,6 +51,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
         setCardBgColor(settingsData.card_bg_color || '#ffffff');
         setCardShadow(settingsData.card_shadow || 'shadow-sm');
+        setHeaderBgColor(settingsData.header_bg_color || '#ffffff');
+        setHeaderTextColor(settingsData.header_text_color || '#0f172a');
+        setHeaderIconBgColor(settingsData.header_icon_bg_color || '#f1f5f9');
+        setHeaderIconColor(settingsData.header_icon_color || '#475569');
       }
 
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -117,7 +127,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         restaurant_name: restaurantName,
         font_family: fontFamily,
         card_bg_color: cardBgColor,
-        card_shadow: cardShadow
+        card_shadow: cardShadow,
+        header_bg_color: headerBgColor,
+        header_text_color: headerTextColor,
+        header_icon_bg_color: headerIconBgColor,
+        header_icon_color: headerIconColor
       };
 
       const { error } = await supabase.from('settings').upsert(payload);
@@ -241,6 +255,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       <option value="Montserrat">Montserrat (Klasik)</option>
                       <option value="Poppins">Poppins (Yumuşak)</option>
                     </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Üst Menü (Header) Ayarları */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                    <Layout className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Üst Menü (Header)</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan</label>
+                    <input type="color" value={headerBgColor} onChange={e => setHeaderBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Metin Rengi</label>
+                    <input type="color" value={headerTextColor} onChange={e => setHeaderTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Dairesi</label>
+                    <input type="color" value={headerIconBgColor} onChange={e => setHeaderIconBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Rengi</label>
+                    <input type="color" value={headerIconColor} onChange={e => setHeaderIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
                   </div>
                 </div>
               </div>

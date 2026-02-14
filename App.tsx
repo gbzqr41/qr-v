@@ -32,6 +32,14 @@ const App: React.FC = () => {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
+  
+  // Header Ayarları State
+  const [headerSettings, setHeaderSettings] = useState({
+    bg: '#ffffff',
+    text: '#0f172a',
+    iconBg: '#f1f5f9',
+    iconColor: '#475569'
+  });
 
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
@@ -54,6 +62,13 @@ const App: React.FC = () => {
           if (settingsData.font_family) setFontFamily(settingsData.font_family);
           if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
           if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
+          
+          setHeaderSettings({
+            bg: settingsData.header_bg_color || '#ffffff',
+            text: settingsData.header_text_color || '#0f172a',
+            iconBg: settingsData.header_icon_bg_color || '#f1f5f9',
+            iconColor: settingsData.header_icon_color || '#475569'
+          });
         }
 
         const { data, error: sbError } = await supabase
@@ -115,7 +130,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" style={{ '--primary-color': primaryColor, '--card-bg': cardBgColor, '--card-shadow-class': cardShadow, fontFamily: `'${fontFamily}', sans-serif` } as any}>
-      <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} restaurantName={restaurantName} />
+      <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} restaurantName={restaurantName} headerSettings={headerSettings} />
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-4"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lezzetler Hazırlanıyor...</p></div>
       ) : error ? (
