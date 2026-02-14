@@ -1,12 +1,4 @@
 
-/* 
-  Dostum, Supabase SQL Editor'e aşağıdaki kodu yapıştırıp çalıştırman gerekiyor:
-  
-  ALTER TABLE settings ADD COLUMN IF NOT EXISTS font_family TEXT DEFAULT 'Plus Jakarta Sans';
-  ALTER TABLE settings ADD COLUMN IF NOT EXISTS card_bg_color TEXT DEFAULT '#ffffff';
-  ALTER TABLE settings ADD COLUMN IF NOT EXISTS card_shadow TEXT DEFAULT 'shadow-sm';
-*/
-
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
@@ -46,12 +38,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').eq('id', 1).maybeSingle();
       
       if (!settingsError && settingsData) {
-        if (settingsData.primary_color) setPrimaryColor(settingsData.primary_color);
-        if (settingsData.qr_color) setQrColor(settingsData.qr_color);
-        if (settingsData.restaurant_name) setRestaurantName(settingsData.restaurant_name);
-        if (settingsData.font_family) setFontFamily(settingsData.font_family);
-        if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
-        if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
+        setPrimaryColor(settingsData.primary_color || '#0f172a');
+        setQrColor(settingsData.qr_color || '#0f172a');
+        setRestaurantName(settingsData.restaurant_name || 'Resital Lounge');
+        setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
+        setCardBgColor(settingsData.card_bg_color || '#ffffff');
+        setCardShadow(settingsData.card_shadow || 'shadow-sm');
       }
 
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -117,26 +109,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const saveDesignSettings = async () => {
     setSaveLoading(true);
     try {
-      const payload: any = { id: 1 };
-      if (primaryColor) payload.primary_color = primaryColor;
-      if (qrColor) payload.qr_color = qrColor;
-      if (restaurantName) payload.restaurant_name = restaurantName;
-      if (fontFamily) payload.font_family = fontFamily;
-      if (cardBgColor) payload.card_bg_color = cardBgColor;
-      if (cardShadow) payload.card_shadow = cardShadow;
+      const payload = { 
+        id: 1,
+        primary_color: primaryColor,
+        qr_color: qrColor,
+        restaurant_name: restaurantName,
+        font_family: fontFamily,
+        card_bg_color: cardBgColor,
+        card_shadow: cardShadow
+      };
 
       const { error } = await supabase.from('settings').upsert(payload);
-      if (error) {
-        if (error.message.includes('column')) {
-          alert("HATA: Supabase tablonuzda 'card_bg_color', 'font_family' veya 'card_shadow' sütunları bulunamadı. Lütfen SQL kodunu Supabase panelinde çalıştırın.");
-        } else {
-          throw error;
-        }
-      } else {
-        alert('Tasarım güncellendi.');
-      }
+      if (error) throw error;
+      alert('Tasarım başarıyla güncellendi.');
     } catch (err: any) {
-      alert('Hata: ' + err.message);
+      alert('Hata: ' + err.message + '\n\nİpucu: Eğer "column not found" diyorsa lütfen Supabase SQL editöründe verdiğim kodu çalıştırın.');
     } finally {
       setSaveLoading(false);
     }
