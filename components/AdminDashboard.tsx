@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
-  TrendingUp, Package, Type as TypeIcon
+  TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -28,6 +28,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [qrColor, setQrColor] = useState('#0f172a');
   const [primaryColor, setPrimaryColor] = useState('#0f172a');
   const [restaurantName, setRestaurantName] = useState('Resital Lounge');
+  const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
+  const [cardBgColor, setCardBgColor] = useState('#ffffff');
+  const [cardShadow, setCardShadow] = useState('shadow-sm');
   
   // API Ayarları
   const [sbUrl, setSbUrl] = useState(() => localStorage.getItem('qresta_supabase_url') || '');
@@ -42,6 +45,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setPrimaryColor(settingsData.primary_color || '#0f172a');
         setQrColor(settingsData.qr_color || '#0f172a');
         setRestaurantName(settingsData.restaurant_name || 'Resital Lounge');
+        setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
+        setCardBgColor(settingsData.card_bg_color || '#ffffff');
+        setCardShadow(settingsData.card_shadow || 'shadow-sm');
       }
 
       // Ürünleri çek
@@ -118,7 +124,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         id: 1,
         primary_color: primaryColor,
         qr_color: qrColor,
-        restaurant_name: restaurantName
+        restaurant_name: restaurantName,
+        font_family: fontFamily,
+        card_bg_color: cardBgColor,
+        card_shadow: cardShadow
       });
       if (error) throw error;
       alert('Tasarım güncellendi.');
@@ -148,7 +157,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <button onClick={() => setActiveTab('menu')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'menu' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Utensils className="w-4 h-4" /> Ürünler</button>
           <button onClick={() => setActiveTab('design')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'design' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Palette className="w-4 h-4" /> Tasarım</button>
           <button onClick={() => setActiveTab('qr')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'qr' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><QrCode className="w-4 h-4" /> QR Kod</button>
-          <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Settings className="w-4 h-4" /> Sistem</button>
+          <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Settings className="w-4 h-4" /> Ayarlar</button>
         </nav>
         <div className="p-6"><button onClick={onClose} className="w-full py-3 bg-rose-500/10 text-rose-500 rounded-xl text-sm font-bold"><LogOut className="w-4 h-4 inline mr-2" /> Çıkış</button></div>
       </aside>
@@ -207,21 +216,54 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         {activeTab === 'design' && (
           <div className="max-w-lg mx-auto space-y-8 animate-fade-in">
             <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-              <h3 className="text-xl font-black text-slate-900 text-center">Görsel Kimlik</h3>
+              <h3 className="text-xl font-black text-slate-900 text-center">Görsel Kimlik Ayarları</h3>
+              
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Restoran Adı</label>
                 <input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2" />
               </div>
+
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tema Rengi</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yazı Tipi (Font)</label>
+                <select value={fontFamily} onChange={e => setFontFamily(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2">
+                  <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Poppins">Poppins</option>
+                </select>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ana Renk (Butonlar & Accent)</label>
                 <div className="grid grid-cols-4 gap-4">
                   {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
                     <button key={c} onClick={() => setPrimaryColor(c)} className={`aspect-square rounded-2xl border-4 transition-all ${primaryColor === c ? 'border-slate-900 scale-105' : 'border-white'}`} style={{ backgroundColor: c }} />
                   ))}
                 </div>
               </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Arka Plan Rengi</label>
+                <div className="grid grid-cols-4 gap-4">
+                  {['#ffffff', '#f8fafc', '#f1f5f9', '#fff7ed'].map(c => (
+                    <button key={c} onClick={() => setCardBgColor(c)} className={`aspect-square rounded-2xl border-4 transition-all ${cardBgColor === c ? 'border-slate-900 scale-105' : 'border-white'}`} style={{ backgroundColor: c }} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Gölge Stili</label>
+                <select value={cardShadow} onChange={e => setCardShadow(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2">
+                  <option value="shadow-none">Gölge Yok</option>
+                  <option value="shadow-sm">Hafif Gölge</option>
+                  <option value="shadow-md">Orta Gölge</option>
+                  <option value="shadow-xl">Belirgin Gölge</option>
+                  <option value="shadow-2xl">Yoğun Gölge</option>
+                </select>
+              </div>
+
               <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">
-                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Ayarları Kaydet
+                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Tasarımı Kaydet
               </button>
             </div>
           </div>
@@ -240,6 +282,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                  ))}
                </div>
                <button onClick={saveDesignSettings} className="w-full mt-6 bg-slate-900 text-white py-4 rounded-xl font-bold">QR Ayarını Kaydet</button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="max-w-lg mx-auto space-y-8 animate-fade-in">
+            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+               <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
+                 <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                    <CheckCircle className="text-emerald-500 w-6 h-6" />
+                 </div>
+                 <div>
+                   <h3 className="font-black text-slate-900">Hesap Durumu</h3>
+                   <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Premium Plan Aktif</p>
+                 </div>
+               </div>
+
+               <div className="space-y-6">
+                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                   <div className="flex items-center gap-3">
+                     <CreditCard className="w-5 h-5 text-slate-400" />
+                     <span className="text-sm font-bold text-slate-600">Aktif Paket</span>
+                   </div>
+                   <span className="text-sm font-black text-slate-900">Qresta PLUS+</span>
+                 </div>
+                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                   <div className="flex items-center gap-3">
+                     <Database className="w-5 h-5 text-slate-400" />
+                     <span className="text-sm font-bold text-slate-600">Bitiş Tarihi</span>
+                   </div>
+                   <span className="text-sm font-black text-slate-900">31.12.2025</span>
+                 </div>
+               </div>
+
+               <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                 <p className="text-xs font-medium text-blue-700 leading-relaxed">
+                   Premium üye olduğunuz için tüm tasarım ve yönetim özelliklerine sınırsız erişiminiz bulunmaktadır.
+                 </p>
+               </div>
             </div>
           </div>
         )}

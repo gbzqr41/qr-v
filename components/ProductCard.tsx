@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Clock, Flame, Zap } from 'lucide-react';
 import { Product } from '../types.ts';
@@ -11,7 +12,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onAdd }) => {
   return (
     <div 
-      className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+      className={`group rounded-3xl overflow-hidden border border-slate-100 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full var-shadow`}
+      style={{ backgroundColor: 'var(--card-bg, #ffffff)' }}
     >
       <div className="relative aspect-[4/3] overflow-hidden cursor-pointer" onClick={() => onSelect(product)}>
         {/* Image Container */}
@@ -59,6 +61,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onAdd }) =
           </div>
         </div>
       </div>
+      <style>{`
+        .var-shadow {
+          box-shadow: var(--card-shadow-value, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+        }
+      `}</style>
     </div>
   );
 };

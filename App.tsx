@@ -30,6 +30,9 @@ const App: React.FC = () => {
   // Veritabanından gelecek tasarım ayarları
   const [primaryColor, setPrimaryColor] = useState('#0f172a');
   const [restaurantName, setRestaurantName] = useState('Resital Lounge');
+  const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
+  const [cardBgColor, setCardBgColor] = useState('#ffffff');
+  const [cardShadow, setCardShadow] = useState('shadow-sm');
 
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
@@ -50,6 +53,9 @@ const App: React.FC = () => {
         if (settingsData) {
           setPrimaryColor(settingsData.primary_color || '#0f172a');
           setRestaurantName(settingsData.restaurant_name || 'Resital Lounge');
+          setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
+          setCardBgColor(settingsData.card_bg_color || '#ffffff');
+          setCardShadow(settingsData.card_shadow || 'shadow-sm');
         }
 
         // 2. Menü Ürünlerini Çek
@@ -118,7 +124,15 @@ const App: React.FC = () => {
   if (showWelcome) return <WelcomeScreen onStart={() => setShowWelcome(false)} />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" style={{ '--primary-color': primaryColor } as any}>
+    <div 
+      className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" 
+      style={{ 
+        '--primary-color': primaryColor,
+        '--card-bg': cardBgColor,
+        '--card-shadow-class': cardShadow,
+        fontFamily: `'${fontFamily}', sans-serif`
+      } as any}
+    >
       <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} restaurantName={restaurantName} />
 
       {loading ? (
