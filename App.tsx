@@ -41,6 +41,10 @@ const App: React.FC = () => {
     iconColor: '#475569'
   });
 
+  // Hero (Slider) Ayarları State
+  const [heroTitleColor, setHeroTitleColor] = useState('#0f172a');
+  const [heroSubtitleColor, setHeroSubtitleColor] = useState('#0f172a');
+
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
@@ -69,6 +73,9 @@ const App: React.FC = () => {
             iconBg: settingsData.header_icon_bg_color || '#f1f5f9',
             iconColor: settingsData.header_icon_color || '#475569'
           });
+
+          setHeroTitleColor(settingsData.hero_title_color || '#0f172a');
+          setHeroSubtitleColor(settingsData.hero_subtitle_color || '#0f172a');
         }
 
         const { data, error: sbError } = await supabase
@@ -150,8 +157,8 @@ const App: React.FC = () => {
           <section className="max-w-7xl mx-auto w-full px-4 mt-8">
             <div className="relative h-[220px] rounded-[2.5rem] overflow-hidden flex flex-col justify-center p-8 md:p-12 border border-slate-200 shadow-sm" style={{ backgroundColor: primaryColor + '10' }}>
               <div className="relative z-10">
-                <h3 className="font-bold uppercase text-[10px] tracking-widest mb-3" style={{ color: primaryColor }}>Seçkin Mutfak Sanatı</h3>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight max-w-2xl">{restaurantName}</h1>
+                <h3 className="font-bold uppercase text-[10px] tracking-widest mb-3 transition-colors" style={{ color: heroSubtitleColor }}>Seçkin Mutfak Sanatı</h3>
+                <h1 className="text-3xl md:text-5xl font-black leading-tight max-w-2xl transition-colors" style={{ color: heroTitleColor }}>{restaurantName}</h1>
               </div>
             </div>
           </section>

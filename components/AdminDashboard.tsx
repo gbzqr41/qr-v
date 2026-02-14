@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
-  Type, MousePointer2, Box, Layout
+  Type, MousePointer2, Box, Layout, Image as ImageIcon
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -39,6 +39,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [headerIconBgColor, setHeaderIconBgColor] = useState('#f1f5f9');
   const [headerIconColor, setHeaderIconColor] = useState('#475569');
 
+  // Slider (Hero) Ayarları
+  const [heroTitleColor, setHeroTitleColor] = useState('#0f172a');
+  const [heroSubtitleColor, setHeroSubtitleColor] = useState('#0f172a');
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -55,6 +59,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setHeaderTextColor(settingsData.header_text_color || '#0f172a');
         setHeaderIconBgColor(settingsData.header_icon_bg_color || '#f1f5f9');
         setHeaderIconColor(settingsData.header_icon_color || '#475569');
+        setHeroTitleColor(settingsData.hero_title_color || '#0f172a');
+        setHeroSubtitleColor(settingsData.hero_subtitle_color || '#0f172a');
       }
 
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -131,7 +137,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         header_bg_color: headerBgColor,
         header_text_color: headerTextColor,
         header_icon_bg_color: headerIconBgColor,
-        header_icon_color: headerIconColor
+        header_icon_color: headerIconColor,
+        hero_title_color: heroTitleColor,
+        hero_subtitle_color: heroSubtitleColor
       };
 
       const { error } = await supabase.from('settings').upsert(payload);
@@ -288,13 +296,34 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
+              {/* Slider (Hero) Ayarları */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                    <ImageIcon className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Slider Başlık Renkleri</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Başlık</label>
+                    <input type="color" value={heroTitleColor} onChange={e => setHeroTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Üst Başlık</label>
+                    <input type="color" value={heroSubtitleColor} onChange={e => setHeroSubtitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                </div>
+              </div>
+
               {/* Renk Teması Kartı */}
               <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
                   <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
                     <Palette className="w-5 h-5" />
                   </div>
-                  <h3 className="font-black text-slate-800">Renk Teması</h3>
+                  <h3 className="font-black text-slate-800">Vurgu Rengi</h3>
                 </div>
 
                 <div className="space-y-4">
