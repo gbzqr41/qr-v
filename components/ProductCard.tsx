@@ -7,9 +7,27 @@ interface ProductCardProps {
   product: Product;
   onSelect: (product: Product) => void;
   onAdd: (product: Product) => void;
+  cardSettings?: {
+    priceColor: string;
+    titleColor: string;
+    descColor: string;
+    infoIconColor: string;
+    infoTextColor: string;
+  };
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onAdd }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  product, 
+  onSelect, 
+  onAdd,
+  cardSettings = {
+    priceColor: '#0f172a',
+    titleColor: '#1e293b',
+    descColor: '#64748b',
+    infoIconColor: '#cbd5e1',
+    infoTextColor: '#94a3b8'
+  }
+}) => {
   return (
     <div 
       className={`group rounded-3xl overflow-hidden border border-slate-100 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full var-shadow`}
@@ -32,29 +50,44 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onAdd }) =
 
       <div className="p-4 flex flex-col flex-1">
         <div className="flex flex-col mb-2">
-          <h3 className="font-bold text-base text-slate-800 leading-snug group-hover:text-slate-900 transition-colors mb-1">
+          <h3 
+            className="font-bold text-base leading-snug transition-colors mb-1"
+            style={{ color: cardSettings.titleColor }}
+          >
             {product.name}
           </h3>
-          <span className="font-extrabold text-slate-900 text-lg">
+          <span 
+            className="font-extrabold text-lg"
+            style={{ color: cardSettings.priceColor }}
+          >
             {product.price} TL
           </span>
         </div>
         
-        <p className="text-slate-500 text-xs line-clamp-2 mb-4 flex-1">
+        <p 
+          className="text-xs line-clamp-2 mb-4 flex-1"
+          style={{ color: cardSettings.descColor }}
+        >
           {product.description}
         </p>
 
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-50">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              <Clock size={12} className="text-slate-300" />
-              <span className="text-[10px] font-medium text-slate-400">
+              <Clock size={12} style={{ color: cardSettings.infoIconColor }} />
+              <span 
+                className="text-[10px] font-medium"
+                style={{ color: cardSettings.infoTextColor }}
+              >
                 15-20 dk
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <Flame size={12} className="text-orange-400" />
-              <span className="text-[10px] font-medium text-slate-400">
+              <Flame size={12} style={{ color: cardSettings.infoIconColor }} />
+              <span 
+                className="text-[10px] font-medium"
+                style={{ color: cardSettings.infoTextColor }}
+              >
                 {product.calories} kcal
               </span>
             </div>

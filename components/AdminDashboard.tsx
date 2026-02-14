@@ -34,6 +34,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
   
+  // Ürün Kartı Detay Ayarları
+  const [cardPriceColor, setCardPriceColor] = useState('#0f172a');
+  const [cardTitleColor, setCardTitleColor] = useState('#1e293b');
+  const [cardDescColor, setCardDescColor] = useState('#64748b');
+  const [cardInfoIconColor, setCardInfoIconColor] = useState('#cbd5e1');
+  const [cardInfoTextColor, setCardInfoTextColor] = useState('#94a3b8');
+  
   // Header Ayarları
   const [headerBgColor, setHeaderBgColor] = useState('#ffffff');
   const [headerTextColor, setHeaderTextColor] = useState('#0f172a');
@@ -79,6 +86,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
         setCardBgColor(settingsData.card_bg_color || '#ffffff');
         setCardShadow(settingsData.card_shadow || 'shadow-sm');
+        
+        // Kart Detayları
+        setCardPriceColor(settingsData.card_price_color || '#0f172a');
+        setCardTitleColor(settingsData.card_title_color || '#1e293b');
+        setCardDescColor(settingsData.card_desc_color || '#64748b');
+        setCardInfoIconColor(settingsData.card_info_icon_color || '#cbd5e1');
+        setCardInfoTextColor(settingsData.card_info_text_color || '#94a3b8');
+
         setHeaderBgColor(settingsData.header_bg_color || '#ffffff');
         setHeaderTextColor(settingsData.header_text_color || '#0f172a');
         setHeaderIconBgColor(settingsData.header_icon_bg_color || '#f1f5f9');
@@ -178,6 +193,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         font_family: fontFamily,
         card_bg_color: cardBgColor,
         card_shadow: cardShadow,
+        card_price_color: cardPriceColor,
+        card_title_color: cardTitleColor,
+        card_desc_color: cardDescColor,
+        card_info_icon_color: cardInfoIconColor,
+        card_info_text_color: cardInfoTextColor,
         header_bg_color: headerBgColor,
         header_text_color: headerTextColor,
         header_icon_bg_color: headerIconBgColor,
@@ -447,6 +467,86 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
+              {/* Menü Kart Stili Genişletilmiş */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                    <Box className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Ürün Kart Stili & Renkleri</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Mevcut Arka Plan ve Gölge Ayarları */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kart Arka Plan Rengi</label>
+                      <div className="flex flex-wrap gap-4">
+                        {[
+                          { val: '#ffffff', label: 'Beyaz' },
+                          { val: '#f8fafc', label: 'Buz' },
+                          { val: '#f1f5f9', label: 'Gümüş' },
+                          { val: '#fff7ed', label: 'Krem' }
+                        ].map(item => (
+                          <button 
+                            key={item.val} 
+                            onClick={() => setCardBgColor(item.val)} 
+                            className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs ${cardBgColor === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
+                          >
+                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: item.val }} />
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Derinlik (Gölge)</label>
+                      <div className="flex flex-wrap gap-3">
+                        {[
+                          { val: 'shadow-none', label: 'Düz' },
+                          { val: 'shadow-sm', label: 'Hafif' },
+                          { val: 'shadow-md', label: 'Orta' },
+                          { val: 'shadow-xl', label: 'Yüksek' }
+                        ].map(item => (
+                          <button 
+                            key={item.val} 
+                            onClick={() => setCardShadow(item.val)} 
+                            className={`flex-1 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs text-center ${cardShadow === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Yeni Renk Ayarları */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label>
+                      <input type="color" value={cardPriceColor} onChange={e => setCardPriceColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ürün İsim Rengi</label>
+                      <input type="color" value={cardTitleColor} onChange={e => setCardTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama Rengi</label>
+                      <input type="color" value={cardDescColor} onChange={e => setCardDescColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt İkon Rengi</label>
+                      <input type="color" value={cardInfoIconColor} onChange={e => setCardInfoIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                    <div className="col-span-2 space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt Bilgi Yazı Rengi (Dk/Kcal)</label>
+                      <input type="color" value={cardInfoTextColor} onChange={e => setCardInfoTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Slider (Hero) Ayarları */}
               <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
@@ -535,59 +635,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         style={{ backgroundColor: c }} 
                       />
                     ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Kart Stilleri Kartı */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-                    <Box className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Menü Kart Stili</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kart Arka Plan Rengi</label>
-                    <div className="flex flex-wrap gap-4">
-                      {[
-                        { val: '#ffffff', label: 'Beyaz' },
-                        { val: '#f8fafc', label: 'Buz' },
-                        { val: '#f1f5f9', label: 'Gümüş' },
-                        { val: '#fff7ed', label: 'Krem' }
-                      ].map(item => (
-                        <button 
-                          key={item.val} 
-                          onClick={() => setCardBgColor(item.val)} 
-                          className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs ${cardBgColor === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
-                        >
-                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: item.val }} />
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Derinlik (Gölge)</label>
-                    <div className="flex flex-wrap gap-3">
-                      {[
-                        { val: 'shadow-none', label: 'Düz' },
-                        { val: 'shadow-sm', label: 'Hafif' },
-                        { val: 'shadow-md', label: 'Orta' },
-                        { val: 'shadow-xl', label: 'Yüksek' }
-                      ].map(item => (
-                        <button 
-                          key={item.val} 
-                          onClick={() => setCardShadow(item.val)} 
-                          className={`flex-1 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs text-center ${cardShadow === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>

@@ -32,6 +32,15 @@ const App: React.FC = () => {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
+
+  // Ürün Kart Detay Ayarları State
+  const [cardSettings, setCardSettings] = useState({
+    priceColor: '#0f172a',
+    titleColor: '#1e293b',
+    descColor: '#64748b',
+    infoIconColor: '#cbd5e1',
+    infoTextColor: '#94a3b8'
+  });
   
   // Header Ayarları State
   const [headerSettings, setHeaderSettings] = useState({
@@ -96,6 +105,14 @@ const App: React.FC = () => {
           if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
           if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
           
+          setCardSettings({
+            priceColor: settingsData.card_price_color || '#0f172a',
+            titleColor: settingsData.card_title_color || '#1e293b',
+            descColor: settingsData.card_desc_color || '#64748b',
+            infoIconColor: settingsData.card_info_icon_color || '#cbd5e1',
+            infoTextColor: settingsData.card_info_text_color || '#94a3b8'
+          });
+
           setHeaderSettings({
             bg: settingsData.header_bg_color || '#ffffff',
             text: settingsData.header_text_color || '#0f172a',
@@ -228,7 +245,7 @@ const App: React.FC = () => {
                   <section key={category} id={category} ref={(el) => { if(el) sectionRefs.current[category] = el; }} className="scroll-mt-[135px]">
                     <h2 className="text-xl font-black mb-6 transition-colors" style={{ color: catTitleColor }}>{category}</h2>
                     <div className="grid grid-cols-2 gap-3 md:gap-6">
-                      {productsInCategory.map(product => (<ProductCard key={product.id} product={product} onSelect={setSelectedProduct} onAdd={addToCart} />))}
+                      {productsInCategory.map(product => (<ProductCard key={product.id} product={product} onSelect={setSelectedProduct} onAdd={addToCart} cardSettings={cardSettings} />))}
                     </div>
                   </section>
                 );
