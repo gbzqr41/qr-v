@@ -10,6 +10,14 @@ interface CategoryFilterProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onProductSelect: (product: Product) => void;
+  searchSettings?: {
+    iconColor: string;
+    textColor: string;
+    bgColor: string;
+    borderColor: string;
+    borderWidth: string;
+    shadow: string;
+  };
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ 
@@ -18,7 +26,15 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onCategoryChange, 
   searchQuery, 
   onSearchChange,
-  onProductSelect
+  onProductSelect,
+  searchSettings = {
+    iconColor: '#94a3b8',
+    textColor: '#0f172a',
+    bgColor: '#ffffff',
+    borderColor: '#e2e8f0',
+    borderWidth: '1px',
+    shadow: 'shadow-sm'
+  }
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const categories: CategoryType[] = Object.values(CategoryType);
@@ -60,14 +76,24 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
       <aside className="w-full sticky top-0 z-40 bg-slate-50/90 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 py-3 space-y-3">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search 
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors" 
+              style={{ color: searchSettings.iconColor }}
+            />
             <input
               type="text"
               readOnly
               placeholder="Lezzet ara..."
               onClick={() => setIsSearchOpen(true)}
               value={searchQuery}
-              className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-10 text-base font-medium focus:outline-none cursor-pointer shadow-sm"
+              style={{ 
+                backgroundColor: searchSettings.bgColor,
+                color: searchSettings.textColor,
+                borderColor: searchSettings.borderColor,
+                borderWidth: searchSettings.borderWidth,
+                borderStyle: 'solid'
+              }}
+              className={`w-full rounded-2xl py-3 pl-12 pr-10 text-base font-medium focus:outline-none cursor-pointer transition-all ${searchSettings.shadow}`}
             />
           </div>
 

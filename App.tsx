@@ -45,6 +45,16 @@ const App: React.FC = () => {
   const [heroTitleColor, setHeroTitleColor] = useState('#0f172a');
   const [heroSubtitleColor, setHeroSubtitleColor] = useState('#0f172a');
 
+  // Arama Çubuğu Ayarları State
+  const [searchSettings, setSearchSettings] = useState({
+    iconColor: '#94a3b8',
+    textColor: '#0f172a',
+    bgColor: '#ffffff',
+    borderColor: '#e2e8f0',
+    borderWidth: '1px',
+    shadow: 'shadow-sm'
+  });
+
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
@@ -76,6 +86,15 @@ const App: React.FC = () => {
 
           setHeroTitleColor(settingsData.hero_title_color || '#0f172a');
           setHeroSubtitleColor(settingsData.hero_subtitle_color || '#0f172a');
+
+          setSearchSettings({
+            iconColor: settingsData.search_icon_color || '#94a3b8',
+            textColor: settingsData.search_text_color || '#0f172a',
+            bgColor: settingsData.search_bg_color || '#ffffff',
+            borderColor: settingsData.search_border_color || '#e2e8f0',
+            borderWidth: settingsData.search_border_width || '1px',
+            shadow: settingsData.search_shadow || 'shadow-sm'
+          });
         }
 
         const { data, error: sbError } = await supabase
@@ -162,7 +181,7 @@ const App: React.FC = () => {
               </div>
             </div>
           </section>
-          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} />
+          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} searchSettings={searchSettings} />
           <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 pb-32">
             <div className="flex flex-col gap-10">
               {Object.values(CategoryType).map((category) => {

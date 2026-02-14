@@ -43,6 +43,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [heroTitleColor, setHeroTitleColor] = useState('#0f172a');
   const [heroSubtitleColor, setHeroSubtitleColor] = useState('#0f172a');
 
+  // Arama Çubuğu Ayarları
+  const [searchIconColor, setSearchIconColor] = useState('#94a3b8');
+  const [searchTextColor, setSearchTextColor] = useState('#0f172a');
+  const [searchBgColor, setSearchBgColor] = useState('#ffffff');
+  const [searchBorderColor, setSearchBorderColor] = useState('#e2e8f0');
+  const [searchBorderWidth, setSearchBorderWidth] = useState('1px');
+  const [searchShadow, setSearchShadow] = useState('shadow-sm');
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -61,6 +69,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setHeaderIconColor(settingsData.header_icon_color || '#475569');
         setHeroTitleColor(settingsData.hero_title_color || '#0f172a');
         setHeroSubtitleColor(settingsData.hero_subtitle_color || '#0f172a');
+        
+        setSearchIconColor(settingsData.search_icon_color || '#94a3b8');
+        setSearchTextColor(settingsData.search_text_color || '#0f172a');
+        setSearchBgColor(settingsData.search_bg_color || '#ffffff');
+        setSearchBorderColor(settingsData.search_border_color || '#e2e8f0');
+        setSearchBorderWidth(settingsData.search_border_width || '1px');
+        setSearchShadow(settingsData.search_shadow || 'shadow-sm');
       }
 
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -139,7 +154,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         header_icon_bg_color: headerIconBgColor,
         header_icon_color: headerIconColor,
         hero_title_color: heroTitleColor,
-        hero_subtitle_color: heroSubtitleColor
+        hero_subtitle_color: heroSubtitleColor,
+        search_icon_color: searchIconColor,
+        search_text_color: searchTextColor,
+        search_bg_color: searchBgColor,
+        search_border_color: searchBorderColor,
+        search_border_width: searchBorderWidth,
+        search_shadow: searchShadow
       };
 
       const { error } = await supabase.from('settings').upsert(payload);
@@ -313,6 +334,53 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Üst Başlık</label>
                     <input type="color" value={heroSubtitleColor} onChange={e => setHeroSubtitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Arama Çubuğu Ayarları */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600">
+                    <Search className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Arama Çubuğu</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Rengi</label>
+                    <input type="color" value={searchIconColor} onChange={e => setSearchIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Yazı Rengi</label>
+                    <input type="color" value={searchTextColor} onChange={e => setSearchTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan</label>
+                    <input type="color" value={searchBgColor} onChange={e => setSearchBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Rengi</label>
+                    <input type="color" value={searchBorderColor} onChange={e => setSearchBorderColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Kalınlığı</label>
+                    <select value={searchBorderWidth} onChange={e => setSearchBorderWidth(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
+                      <option value="0px">Yok</option>
+                      <option value="1px">İnce (1px)</option>
+                      <option value="2px">Orta (2px)</option>
+                      <option value="3px">Kalın (3px)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge</label>
+                    <select value={searchShadow} onChange={e => setSearchShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
+                      <option value="shadow-none">Yok</option>
+                      <option value="shadow-sm">Hafif</option>
+                      <option value="shadow-md">Belirgin</option>
+                      <option value="shadow-lg">Güçlü</option>
+                    </select>
                   </div>
                 </div>
               </div>
