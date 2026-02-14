@@ -22,7 +22,13 @@ import {
   Phone,
   MessageCircle,
   Wifi,
-  ChevronRight
+  ChevronRight,
+  QrCode,
+  Palette,
+  Download,
+  Printer,
+  RefreshCw,
+  Type
 } from 'lucide-react';
 import { MENU_DATA } from '../constants.tsx';
 import { CategoryType } from '../types.ts';
@@ -31,10 +37,13 @@ interface AdminDashboardProps {
   onClose: () => void;
 }
 
-type TabType = 'dashboard' | 'menu' | 'reports' | 'settings';
+type TabType = 'dashboard' | 'menu' | 'qr' | 'reports' | 'design' | 'settings';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [qrColor, setQrColor] = useState('#0f172a');
+  const [primaryColor, setPrimaryColor] = useState('#0f172a');
+  const [selectedFont, setSelectedFont] = useState('Plus Jakarta Sans');
 
   const stats = [
     { label: 'Günlük Görüntüleme', value: '1,284', change: '+12.5%', icon: <Eye className="text-blue-500" />, positive: true },
@@ -191,6 +200,155 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     </div>
   );
 
+  const renderQRManagement = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fade-in">
+      <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center justify-center space-y-8">
+        <div className="p-6 bg-slate-50 rounded-[2rem] border-4 border-slate-100 shadow-inner">
+          <div 
+            className="w-64 h-64 bg-white p-4 rounded-xl flex items-center justify-center border"
+            style={{ color: qrColor }}
+          >
+            <QrCode size={200} strokeWidth={1.5} />
+          </div>
+        </div>
+        
+        <div className="w-full space-y-4">
+          <div className="flex items-center gap-3">
+             <button className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all">
+               <Download className="w-4 h-4" /> İndir (PNG)
+             </button>
+             <button className="flex-1 bg-white border border-slate-200 text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+               <Printer className="w-4 h-4" /> Yazdır
+             </button>
+          </div>
+          <button className="w-full bg-slate-50 text-slate-500 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center gap-2">
+            <RefreshCw className="w-3 h-3" /> QR Kodunu Yeniden Oluştur
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+          <h3 className="font-black text-slate-900">QR Kod Özelleştirme</h3>
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hedef URL</label>
+            <input 
+              type="text" 
+              defaultValue={window.location.origin}
+              className="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-sm font-bold focus:ring-2 focus:ring-slate-900/5 outline-none" 
+            />
+          </div>
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">QR Rengi</label>
+            <div className="flex flex-wrap gap-3">
+              {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706'].map(color => (
+                <button 
+                  key={color}
+                  onClick={() => setQrColor(color)}
+                  className={`w-10 h-10 rounded-full border-2 transition-all ${qrColor === color ? 'border-slate-900 scale-110 shadow-lg' : 'border-transparent'}`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+              <input 
+                type="color" 
+                value={qrColor} 
+                onChange={(e) => setQrColor(e.target.value)}
+                className="w-10 h-10 rounded-full border-none cursor-pointer overflow-hidden bg-transparent"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
+          <h3 className="font-black mb-4 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-amber-500" /> İpucu
+          </h3>
+          <p className="text-sm text-white/70 leading-relaxed font-medium">
+            QR kodunuzun kolayca okunabilmesi için yüksek kontrastlı renkler kullanmanızı öneririz. Koyu renkli kodlar, beyaz zemin üzerinde en iyi performansı verir.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDesignSettings = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fade-in">
+      <div className="space-y-8">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-10">
+          <div className="space-y-6">
+            <h3 className="font-black text-slate-900 flex items-center gap-2">
+              <Palette className="w-5 h-5" /> Tema Renkleri
+            </h3>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Renk (Butonlar, Seçimler)</label>
+              <div className="flex flex-wrap gap-3">
+                {['#0f172a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'].map(color => (
+                  <button 
+                    key={color}
+                    onClick={() => setPrimaryColor(color)}
+                    className={`w-12 h-12 rounded-2xl border-2 transition-all ${primaryColor === color ? 'border-slate-900 scale-105 shadow-md' : 'border-transparent'}`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="font-black text-slate-900 flex items-center gap-2">
+              <Type className="w-5 h-5" /> Yazı Tipi (Typography)
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {['Plus Jakarta Sans', 'Inter', 'Montserrat', 'Poppins'].map(font => (
+                <button 
+                  key={font}
+                  onClick={() => setSelectedFont(font)}
+                  className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${selectedFont === font ? 'border-slate-900 bg-slate-50 shadow-sm' : 'border-slate-100 hover:border-slate-200'}`}
+                >
+                  <span style={{ fontFamily: font }} className="font-bold text-sm">{font}</span>
+                  {selectedFont === font && <div className="w-2 h-2 rounded-full bg-slate-900" />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-slate-50">
+            <button className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-200">
+              <Save className="w-5 h-5" /> Tasarımı Uygula
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Görünüm Önizleme</h3>
+        <div className="bg-slate-100 rounded-[3rem] p-8 border border-slate-200 shadow-inner flex flex-col gap-6 scale-95 origin-top">
+          {/* Mock Preview UI */}
+          <div className="bg-white rounded-[2rem] p-6 space-y-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
+                 <Utensils className="text-white w-5 h-5" />
+              </div>
+              <div className="h-4 w-32 bg-slate-100 rounded-full" />
+            </div>
+            <div className="h-32 w-full bg-slate-50 rounded-2xl" />
+            <button className="w-full py-4 rounded-xl text-white font-bold text-xs" style={{ backgroundColor: primaryColor, fontFamily: selectedFont }}>
+              Örnek Buton
+            </button>
+          </div>
+          
+          <div className="flex gap-3 overflow-hidden">
+             {[1, 2, 3].map(i => (
+               <div key={i} className={`px-6 py-3 rounded-full shrink-0 text-[10px] font-black uppercase`} style={{ backgroundColor: i === 1 ? primaryColor : 'white', color: i === 1 ? 'white' : '#64748b', fontFamily: selectedFont }}>
+                 Kategori {i}
+               </div>
+             ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderReports = () => (
     <div className="space-y-8 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -314,10 +472,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             <Utensils className="w-4 h-4" /> Menü Yönetimi
           </button>
           <button 
+            onClick={() => setActiveTab('qr')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'qr' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}
+          >
+            <QrCode className="w-4 h-4" /> QR Yönetimi
+          </button>
+          <button 
             onClick={() => setActiveTab('reports')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'reports' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}
           >
             <BarChart3 className="w-4 h-4" /> Raporlar
+          </button>
+          <button 
+            onClick={() => setActiveTab('design')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'design' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}
+          >
+            <Palette className="w-4 h-4" /> Tasarım
           </button>
           <button 
             onClick={() => setActiveTab('settings')}
@@ -344,13 +514,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             <h1 className="text-3xl font-black text-slate-900">
               {activeTab === 'dashboard' && 'Hoş Geldiniz, Yönetici'}
               {activeTab === 'menu' && 'Menü Yönetimi'}
+              {activeTab === 'qr' && 'QR Kod Yönetimi'}
               {activeTab === 'reports' && 'Performans Raporları'}
+              {activeTab === 'design' && 'Görünüm Tasarımı'}
               {activeTab === 'settings' && 'İşletme Ayarları'}
             </h1>
             <p className="text-slate-500 font-medium">
               {activeTab === 'dashboard' && 'İşletmenizin performansına göz atın.'}
               {activeTab === 'menu' && 'Ürünleri düzenleyin, fiyatları güncelleyin.'}
+              {activeTab === 'qr' && 'Menü linkiniz için QR kodları oluşturun ve indirin.'}
               {activeTab === 'reports' && 'Ziyaretçi ve geri bildirim verilerini inceleyin.'}
+              {activeTab === 'design' && 'Menü renklerini ve yazı tiplerini özelleştirin.'}
               {activeTab === 'settings' && 'İletişim ve profil bilgilerinizi yönetin.'}
             </p>
           </div>
@@ -367,7 +541,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'menu' && renderMenuManagement()}
+        {activeTab === 'qr' && renderQRManagement()}
         {activeTab === 'reports' && renderReports()}
+        {activeTab === 'design' && renderDesignSettings()}
         {activeTab === 'settings' && renderSettings()}
       </main>
 
