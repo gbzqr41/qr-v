@@ -27,7 +27,6 @@ const App: React.FC = () => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   
-  // Veritabanından gelecek tasarım ayarları
   const [primaryColor, setPrimaryColor] = useState('#0f172a');
   const [restaurantName, setRestaurantName] = useState('Resital Lounge');
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
@@ -43,8 +42,6 @@ const App: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // 1. Tasarım Ayarlarını GÜVENLİ Çek
-        // Sütunların varlığını kontrol etmeden hatayı sessizce yakala
         const { data: settingsData, error: settingsError } = await supabase
           .from('settings')
           .select('*')
@@ -59,15 +56,13 @@ const App: React.FC = () => {
           if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
         }
 
-        // 2. Menü Ürünlerini Çek
         const { data, error: sbError } = await supabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: true });
 
         if (sbError) throw sbError;
-        
-        const formattedData: Product[] = (data || []).map(item => ({
+        setMenuItems((data || []).map(item => ({
           id: item.id,
           name: item.name,
           description: item.description,
@@ -77,12 +72,9 @@ const App: React.FC = () => {
           isPopular: item.is_popular,
           calories: item.calories,
           ingredients: item.ingredients || []
-        }));
-
-        setMenuItems(formattedData);
+        })));
       } catch (err: any) {
-        console.error('Veri çekilemedi:', err);
-        // Sadece kritik hatalarda kullanıcıya mesaj göster
+        console.error('Hata:', err);
         if (err.code !== 'PGRST116' && !err.message.includes('column')) { 
             setError('Veritabanı bağlantısı kurulamadı.');
         }
@@ -90,7 +82,6 @@ const App: React.FC = () => {
         setLoading(false);
       }
     };
-
     if (!showWelcome) initializeApp();
   }, [showWelcome]);
 
@@ -119,46 +110,25 @@ const App: React.FC = () => {
     });
   };
 
-  if (isAdmin && isAdminAuth) {
-    return <AdminDashboard onClose={() => { setIsAdminAuth(false); window.location.hash = ''; }} />;
-  }
-
+  if (isAdmin && isAdminAuth) return <AdminDashboard onClose={() => { setIsAdminAuth(false); window.location.hash = ''; }} />;
   if (showWelcome) return <WelcomeScreen onStart={() => setShowWelcome(false)} />;
 
   return (
-    <div 
-      className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" 
-      style={{ 
-        '--primary-color': primaryColor,
-        '--card-bg': cardBgColor,
-        '--card-shadow-class': cardShadow,
-        fontFamily: `'${fontFamily}', sans-serif`
-      } as any}
-    >
+    <div className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" style={{ '--primary-color': primaryColor, '--card-bg': cardBgColor, '--card-shadow-class': cardShadow, fontFamily: `'${fontFamily}', sans-serif` } as any}>
       <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} restaurantName={restaurantName} />
-
       {loading ? (
-        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lezzetler Hazırlanıyor...</p>
-        </div>
+        <div className="flex-1 flex flex-col items-center justify-center space-y-4"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lezzetler Hazırlanıyor...</p></div>
       ) : error ? (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center">
-            <UtensilsCrossed className="w-8 h-8 text-rose-500" />
-          </div>
+          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center"><UtensilsCrossed className="w-8 h-8 text-rose-500" /></div>
           <h2 className="text-xl font-bold text-slate-900">Bir sorun oluştu</h2>
-          <p className="text-slate-500 text-sm max-w-xs">{error}</p>
-          <button onClick={() => window.location.reload()} className="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold">Tekrar Dene</button>
+          <button onClick={() => window.location.reload()} className="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold">Dene</button>
         </div>
       ) : menuItems.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-            <UtensilsCrossed className="w-8 h-8 text-slate-300" />
-          </div>
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center"><UtensilsCrossed className="w-8 h-8 text-slate-300" /></div>
           <h2 className="text-xl font-bold text-slate-900">Menü Henüz Boş</h2>
-          <p className="text-slate-500 text-sm max-w-xs">Admin paneline girerek ilk ürünlerinizi ekleyebilirsiniz.</p>
-          <button onClick={() => window.location.hash = '#admin'} className="text-slate-900 font-bold border-b border-slate-900">Admin Girişi</button>
+          <button onClick={() => window.location.hash = '#admin'} className="text-slate-900 font-bold border-b border-slate-900">Admin</button>
         </div>
       ) : (
         <>
@@ -170,30 +140,17 @@ const App: React.FC = () => {
               </div>
             </div>
           </section>
-
-          <CategoryFilter 
-            products={menuItems}
-            activeCategory={activeCategory} 
-            onCategoryChange={(cat) => setActiveCategory(cat)} 
-            searchQuery={searchQuery} 
-            onSearchChange={setSearchQuery} 
-            onProductSelect={setSelectedProduct} 
-          />
-          
-          <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-            <div className="flex flex-col gap-10 pb-20">
+          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} />
+          <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 pb-32">
+            <div className="flex flex-col gap-10">
               {Object.values(CategoryType).map((category) => {
                 const productsInCategory = menuItems.filter(p => p.category === category);
                 if (productsInCategory.length === 0) return null;
                 return (
                   <section key={category} id={category} ref={(el) => { if(el) sectionRefs.current[category] = el; }} className="scroll-mt-[135px]">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-xl font-black text-slate-900">{category}</h2>
-                    </div>
+                    <h2 className="text-xl font-black text-slate-900 mb-6">{category}</h2>
                     <div className="grid grid-cols-2 gap-3 md:gap-6">
-                      {productsInCategory.map(product => (
-                        <ProductCard key={product.id} product={product} onSelect={setSelectedProduct} onAdd={addToCart} />
-                      ))}
+                      {productsInCategory.map(product => (<ProductCard key={product.id} product={product} onSelect={setSelectedProduct} onAdd={addToCart} />))}
                     </div>
                   </section>
                 );
@@ -202,14 +159,7 @@ const App: React.FC = () => {
           </main>
         </>
       )}
-
-      {cartItems.length > 0 && (
-        <button onClick={() => setIsCartOpen(true)} className="fixed bottom-6 right-6 z-[45] text-white p-4 rounded-full shadow-2xl flex items-center gap-3 active:scale-95 transition-transform" style={{ backgroundColor: primaryColor }}>
-          <ShoppingBag className="w-6 h-6" />
-          <span className="font-bold text-sm">{cartItems.reduce((s, i) => s + i.quantity, 0)} Ürün</span>
-        </button>
-      )}
-
+      {cartItems.length > 0 && (<button onClick={() => setIsCartOpen(true)} className="fixed bottom-6 right-6 z-[45] text-white p-4 rounded-full shadow-2xl flex items-center gap-3 active:scale-95 transition-transform" style={{ backgroundColor: primaryColor }}><ShoppingBag className="w-6 h-6" /><span className="font-bold text-sm">{cartItems.reduce((s, i) => s + i.quantity, 0)}</span></button>)}
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} />
       <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cartItems} onUpdateQuantity={(id, d) => setCartItems(p => p.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + d)} : i))} onRemove={(id) => setCartItems(p => p.filter(i => i.id !== id))} primaryColor={primaryColor} />
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} primaryColor={primaryColor} />

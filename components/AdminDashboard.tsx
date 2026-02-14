@@ -1,4 +1,12 @@
 
+/* 
+  Dostum, Supabase SQL Editor'e aşağıdaki kodu yapıştırıp çalıştırman gerekiyor:
+  
+  ALTER TABLE settings ADD COLUMN IF NOT EXISTS font_family TEXT DEFAULT 'Plus Jakarta Sans';
+  ALTER TABLE settings ADD COLUMN IF NOT EXISTS card_bg_color TEXT DEFAULT '#ffffff';
+  ALTER TABLE settings ADD COLUMN IF NOT EXISTS card_shadow TEXT DEFAULT 'shadow-sm';
+*/
+
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
@@ -31,15 +39,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
-  
-  // API Ayarları
-  const [sbUrl, setSbUrl] = useState(() => localStorage.getItem('qresta_supabase_url') || '');
-  const [sbKey, setSbKey] = useState(() => localStorage.getItem('qresta_supabase_key') || '');
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Ayarları güvenli çek
       const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').eq('id', 1).maybeSingle();
       
       if (!settingsError && settingsData) {
@@ -51,7 +54,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
       }
 
-      // Ürünleri çek
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
       setMenuItems((menuData || []).map(item => ({
         id: item.id,
@@ -79,7 +81,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     e.preventDefault();
     if (!editingProduct?.name || !editingProduct?.price) return;
     setSaveLoading(true);
-    
     try {
       const productData = {
         name: editingProduct.name,
@@ -91,56 +92,49 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         calories: editingProduct.calories,
         ingredients: editingProduct.ingredients
       };
-
-      if (editingProduct.id) {
-        await supabase.from('products').update(productData).eq('id', editingProduct.id);
-      } else {
-        await supabase.from('products').insert([productData]);
-      }
-      
+      if (editingProduct.id) await supabase.from('products').update(productData).eq('id', editingProduct.id);
+      else await supabase.from('products').insert([productData]);
       setIsModalOpen(false);
       setEditingProduct(null);
       fetchData();
     } catch (err) {
-      alert('Ürün kaydedilirken bir hata oluştu.');
+      alert('Kaydedilirken hata oluştu.');
     } finally {
       setSaveLoading(false);
     }
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+    if (!confirm('Silmek istediğinize emin misiniz?')) return;
     try {
       await supabase.from('products').delete().eq('id', id);
       fetchData();
     } catch (err) {
-      alert('Ürün silinemedi.');
+      alert('Silinemedi.');
     }
   };
 
   const saveDesignSettings = async () => {
     setSaveLoading(true);
     try {
-      // Temel verileri hazırla
-      const payload: any = {
-        id: 1,
-        primary_color: primaryColor,
-        qr_color: qrColor,
-        restaurant_name: restaurantName,
-        font_family: fontFamily,
-        card_bg_color: cardBgColor,
-        card_shadow: cardShadow
-      };
+      const payload: any = { id: 1 };
+      if (primaryColor) payload.primary_color = primaryColor;
+      if (qrColor) payload.qr_color = qrColor;
+      if (restaurantName) payload.restaurant_name = restaurantName;
+      if (fontFamily) payload.font_family = fontFamily;
+      if (cardBgColor) payload.card_bg_color = cardBgColor;
+      if (cardShadow) payload.card_shadow = cardShadow;
 
       const { error } = await supabase.from('settings').upsert(payload);
-      
       if (error) {
-        if (error.message.includes('column') || error.message.includes('cache')) {
-          throw new Error('Supabase tablonuzda yeni sütunlar (card_bg_color vb.) eksik. Lütfen SQL editöründen bu sütunları ekleyin.');
+        if (error.message.includes('column')) {
+          alert("HATA: Supabase tablonuzda 'card_bg_color', 'font_family' veya 'card_shadow' sütunları bulunamadı. Lütfen SQL kodunu Supabase panelinde çalıştırın.");
+        } else {
+          throw error;
         }
-        throw error;
+      } else {
+        alert('Tasarım güncellendi.');
       }
-      alert('Tasarım ayarları başarıyla güncellendi.');
     } catch (err: any) {
       alert('Hata: ' + err.message);
     } finally {
@@ -149,11 +143,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   };
 
   const getMenuUrl = () => window.location.href.split('#')[0];
-
-  const filteredItems = menuItems.filter(item => 
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredItems = menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.category.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
@@ -200,7 +190,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" placeholder="Ürün veya kategori ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-slate-900/5 shadow-sm" />
+              <input type="text" placeholder="Ürün ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-slate-900/5 shadow-sm" />
             </div>
             <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
               <table className="w-full text-left">
@@ -227,12 +217,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <div className="max-w-lg mx-auto space-y-8 animate-fade-in">
             <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
               <h3 className="text-xl font-black text-slate-900 text-center">Görsel Kimlik Ayarları</h3>
-              
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Restoran Adı</label>
                 <input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2" />
               </div>
-
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yazı Tipi (Font)</label>
                 <select value={fontFamily} onChange={e => setFontFamily(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2">
@@ -242,38 +230,34 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <option value="Poppins">Poppins</option>
                 </select>
               </div>
-
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ana Renk (Butonlar & Accent)</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ana Renk</label>
                 <div className="grid grid-cols-4 gap-4">
                   {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
                     <button key={c} onClick={() => setPrimaryColor(c)} className={`aspect-square rounded-2xl border-4 transition-all ${primaryColor === c ? 'border-slate-900 scale-105' : 'border-white'}`} style={{ backgroundColor: c }} />
                   ))}
                 </div>
               </div>
-
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Arka Plan Rengi</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Arka Plan</label>
                 <div className="grid grid-cols-4 gap-4">
                   {['#ffffff', '#f8fafc', '#f1f5f9', '#fff7ed'].map(c => (
                     <button key={c} onClick={() => setCardBgColor(c)} className={`aspect-square rounded-2xl border-4 transition-all ${cardBgColor === c ? 'border-slate-900 scale-105' : 'border-white'}`} style={{ backgroundColor: c }} />
                   ))}
                 </div>
               </div>
-
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Gölge Stili</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Gölgesi</label>
                 <select value={cardShadow} onChange={e => setCardShadow(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2">
-                  <option value="shadow-none">Gölge Yok</option>
-                  <option value="shadow-sm">Hafif Gölge</option>
-                  <option value="shadow-md">Orta Gölge</option>
-                  <option value="shadow-xl">Belirgin Gölge</option>
-                  <option value="shadow-2xl">Yoğun Gölge</option>
+                  <option value="shadow-none">Yok</option>
+                  <option value="shadow-sm">Hafif</option>
+                  <option value="shadow-md">Orta</option>
+                  <option value="shadow-xl">Belirgin</option>
+                  <option value="shadow-2xl">Yoğun</option>
                 </select>
               </div>
-
               <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">
-                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Tasarımı Kaydet
+                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Kaydet
               </button>
             </div>
           </div>
@@ -291,7 +275,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    <button key={c} onClick={() => setQrColor(c)} className={`w-10 h-10 rounded-full border-2 ${qrColor === c ? 'border-slate-900 scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />
                  ))}
                </div>
-               <button onClick={saveDesignSettings} className="w-full mt-6 bg-slate-900 text-white py-4 rounded-xl font-bold">QR Ayarını Kaydet</button>
+               <button onClick={saveDesignSettings} className="w-full mt-6 bg-slate-900 text-white py-4 rounded-xl font-bold">QR Kaydet</button>
             </div>
           </div>
         )}
@@ -308,7 +292,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Premium Plan Aktif</p>
                  </div>
                </div>
-
                <div className="space-y-6">
                  <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
                    <div className="flex items-center gap-3">
@@ -325,10 +308,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    <span className="text-sm font-black text-slate-900">31.12.2025</span>
                  </div>
                </div>
-
                <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
                  <p className="text-xs font-medium text-blue-700 leading-relaxed">
-                   Premium üye olduğunuz için tüm tasarım ve yönetim özelliklerine sınırsız erişiminiz bulunmaktadır.
+                   Premium üye olduğunuz için tüm özelliklere sınırsız erişiminiz bulunmaktadır.
                  </p>
                </div>
             </div>
@@ -346,20 +328,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
             <form onSubmit={handleSaveProduct} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Ürün Adı</label><input required value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
-                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat (TL)</label><input required type="number" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
+                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Adı</label><input required value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
+                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat</label><input required type="number" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
                   <select value={editingProduct?.category} onChange={e => setEditingProduct(p => ({...p!, category: e.target.value as CategoryType}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2">
                     {Object.values(CategoryType).map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Görsel URL</label><input value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
+                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Görsel</label><input value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
               </div>
               <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama</label><textarea rows={3} value={editingProduct?.description || ''} onChange={e => setEditingProduct(p => ({...p!, description: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
-              <div className="flex items-center gap-3"><input type="checkbox" checked={editingProduct?.isPopular || false} onChange={e => setEditingProduct(p => ({...p!, isPopular: e.target.checked}))} id="pop" /><label htmlFor="pop" className="text-sm font-bold text-slate-700">Popüler Ürün Olarak İşaretle</label></div>
+              <div className="flex items-center gap-3"><input type="checkbox" checked={editingProduct?.isPopular || false} onChange={e => setEditingProduct(p => ({...p!, isPopular: e.target.checked}))} id="pop" /><label htmlFor="pop" className="text-sm font-bold text-slate-700">Popüler</label></div>
               <button type="submit" disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">
-                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} {editingProduct?.id ? 'Değişiklikleri Kaydet' : 'Ürünü Ekle'}
+                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} {editingProduct?.id ? 'Güncelle' : 'Ekle'}
               </button>
             </form>
           </div>
