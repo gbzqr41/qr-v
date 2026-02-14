@@ -30,7 +30,6 @@ const App: React.FC = () => {
   const [menuItems, setMenuItems] = useState<Product[]>([]);
 
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
-  const activeCategoryRef = useRef<CategoryType | null>(null);
   const isManualScrolling = useRef(false);
 
   // Supabase'den Menü Çekme
@@ -45,7 +44,6 @@ const App: React.FC = () => {
 
         if (error) throw error;
         
-        // Veritabanı formatını frontend formatına mapleyelim
         const formattedData: Product[] = (data || []).map(item => ({
           id: item.id,
           name: item.name,
@@ -88,7 +86,6 @@ const App: React.FC = () => {
     if (isManual && cat) {
       isManualScrolling.current = true;
       setActiveCategory(cat);
-      activeCategoryRef.current = cat;
       setTimeout(() => { isManualScrolling.current = false; }, 800);
     }
   };
@@ -135,7 +132,7 @@ const App: React.FC = () => {
                 const productsInCategory = menuItems.filter(p => p.category === category);
                 if (productsInCategory.length === 0) return null;
                 return (
-                  <section key={category} id={category} ref={(el) => (sectionRefs.current[category] = el)} className="scroll-mt-[135px]">
+                  <section key={category} id={category} ref={(el) => { sectionRefs.current[category] = el; }} className="scroll-mt-[135px]">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-black text-slate-900">{category}</h2>
                     </div>
