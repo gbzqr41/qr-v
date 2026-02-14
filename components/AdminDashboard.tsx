@@ -45,13 +45,46 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
 
   // Tasarım Ayarları
-  const [qrColor, setQrColor] = useState(() => localStorage.getItem('qresta_qr_color') || '#0f172a');
-  const [primaryColor, setPrimaryColor] = useState(() => localStorage.getItem('qresta_primary_color') || '#0f172a');
+  const [qrColor, setQrColor] = useState(() => {
+    try {
+      return localStorage.getItem('qresta_qr_color') || '#0f172a';
+    } catch {
+      return '#0f172a';
+    }
+  });
+  
+  const [primaryColor, setPrimaryColor] = useState(() => {
+    try {
+      return localStorage.getItem('qresta_primary_color') || '#0f172a';
+    } catch {
+      return '#0f172a';
+    }
+  });
   
   // API Ayarları
-  const [sbUrl, setSbUrl] = useState(() => localStorage.getItem('qresta_supabase_url') || '');
-  const [sbKey, setSbKey] = useState(() => localStorage.getItem('qresta_supabase_key') || '');
-  const [cfBucket, setCfBucket] = useState(() => localStorage.getItem('qresta_cf_bucket') || '');
+  const [sbUrl, setSbUrl] = useState(() => {
+    try {
+      return localStorage.getItem('qresta_supabase_url') || '';
+    } catch {
+      return '';
+    }
+  });
+  
+  const [sbKey, setSbKey] = useState(() => {
+    try {
+      return localStorage.getItem('qresta_supabase_key') || '';
+    } catch {
+      return '';
+    }
+  });
+  
+  const [cfBucket, setCfBucket] = useState(() => {
+    try {
+      return localStorage.getItem('qresta_cf_bucket') || '';
+    } catch {
+      return '';
+    }
+  });
 
   const fetchMenu = async () => {
     setLoading(true);
@@ -128,6 +161,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     localStorage.setItem('qresta_cf_bucket', cfBucket);
     alert('Ayarlar kaydedildi. Sayfa yenileniyor...');
     window.location.reload();
+  };
+
+  // QR kodun gideceği linki hesapla (admin hash'ini temizle)
+  const getMenuUrl = () => {
+    const currentUrl = window.location.href;
+    return currentUrl.split('#')[0];
   };
 
   const renderDashboard = () => (
@@ -275,8 +314,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         {activeTab === 'qr' && (
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center max-w-lg mx-auto">
             <div className="w-64 h-64 bg-slate-50 p-4 rounded-3xl border flex items-center justify-center mb-8">
-              <QRCodeSVG value={window.location.origin} size={220} fgColor={qrColor} />
+              <QRCodeSVG value={getMenuUrl()} size={220} fgColor={qrColor} />
             </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 break-all text-center max-w-xs">
+              Link: {getMenuUrl()}
+            </p>
             <div className="w-full space-y-4">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">QR Renk</label>
               <div className="flex gap-3">
