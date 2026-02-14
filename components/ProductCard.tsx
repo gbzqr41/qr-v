@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Clock, Flame, Zap } from 'lucide-react';
-import { Product } from '../types';
+import { Product } from '../types.ts';
 
 interface ProductCardProps {
   product: Product;

@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ShoppingBag } from 'lucide-react';
-import Navbar from './components/Navbar';
-import CategoryFilter from './components/CategoryFilter';
-import ProductCard from './components/ProductCard';
-import ProductModal from './components/ProductModal';
-import CartSheet from './components/CartSheet';
-import FeedbackModal from './components/FeedbackModal';
-import WelcomeScreen from './components/WelcomeScreen';
-import BusinessInfoModal from './components/BusinessInfoModal';
-import { MENU_DATA } from './constants';
-import { CategoryType, Product, CartItem } from './types';
+import Navbar from './components/Navbar.tsx';
+import CategoryFilter from './components/CategoryFilter.tsx';
+import ProductCard from './components/ProductCard.tsx';
+import ProductModal from './components/ProductModal.tsx';
+import CartSheet from './components/CartSheet.tsx';
+import FeedbackModal from './components/FeedbackModal.tsx';
+import WelcomeScreen from './components/WelcomeScreen.tsx';
+import BusinessInfoModal from './components/BusinessInfoModal.tsx';
+import { MENU_DATA } from './constants.tsx';
+import { CategoryType, Product, CartItem } from './types.ts';
 
 const App: React.FC = () => {
   const [showWelcome, setShowWelcome] = useState(true);

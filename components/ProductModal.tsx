@@ -1,7 +1,6 @@
-
 import React, { useEffect } from 'react';
 import { X, Clock, Flame } from 'lucide-react';
-import { Product } from '../types';
+import { Product } from '../types.ts';
 
 interface ProductModalProps {
   product: Product | null;

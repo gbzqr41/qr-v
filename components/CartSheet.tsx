@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { X, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
-import { CartItem } from '../types';
+import { CartItem } from '../types.ts';
 
 interface CartSheetProps {
   isOpen: boolean;

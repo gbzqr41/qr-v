@@ -1,8 +1,7 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Search, X, ArrowLeft } from 'lucide-react';
-import { CategoryType, Product } from '../types';
-import { MENU_DATA } from '../constants';
+import { CategoryType, Product } from '../types.ts';
+import { MENU_DATA } from '../constants.tsx';
 
 interface CategoryFilterProps {
   activeCategory: CategoryType | null;
