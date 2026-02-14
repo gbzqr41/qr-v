@@ -29,12 +29,11 @@ const App: React.FC = () => {
   
   // Veritabanından gelecek tasarım ayarları
   const [primaryColor, setPrimaryColor] = useState('#0f172a');
+  const [restaurantName, setRestaurantName] = useState('Resital Lounge');
 
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
-  const isManualScrolling = useRef(false);
 
-  // Veritabanından Tasarım ve Menü Çekme
   useEffect(() => {
     const initializeApp = async () => {
       try {
@@ -44,12 +43,13 @@ const App: React.FC = () => {
         // 1. Tasarım Ayarlarını Çek
         const { data: settingsData } = await supabase
           .from('settings')
-          .select('primary_color')
+          .select('*')
           .eq('id', 1)
           .single();
         
-        if (settingsData?.primary_color) {
-          setPrimaryColor(settingsData.primary_color);
+        if (settingsData) {
+          setPrimaryColor(settingsData.primary_color || '#0f172a');
+          setRestaurantName(settingsData.restaurant_name || 'Resital Lounge');
         }
 
         // 2. Menü Ürünlerini Çek
@@ -75,8 +75,7 @@ const App: React.FC = () => {
         setMenuItems(formattedData);
       } catch (err: any) {
         console.error('Veri çekilemedi:', err);
-        // Tablo yoksa veya hata verirse varsayılanlarla devam et (fail-safe)
-        if (err.code !== 'PGRST116') { // Single record not found hatası değilse hata göster
+        if (err.code !== 'PGRST116') { 
             setError('Veritabanı bağlantısı kurulamadı.');
         }
       } finally {
@@ -104,14 +103,6 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [isAdminAuth]);
 
-  const handleCategoryChange = (cat: CategoryType | null, isManual: boolean = false) => {
-    if (isManual && cat) {
-      isManualScrolling.current = true;
-      setActiveCategory(cat);
-      setTimeout(() => { isManualScrolling.current = false; }, 800);
-    }
-  };
-
   const addToCart = (product: Product) => {
     setCartItems(prev => {
       const existing = prev.find(item => item.id === product.id);
@@ -128,7 +119,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" style={{ '--primary-color': primaryColor } as any}>
-      <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} />
+      <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} restaurantName={restaurantName} />
 
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-4">
@@ -159,7 +150,7 @@ const App: React.FC = () => {
             <div className="relative h-[220px] rounded-[2.5rem] overflow-hidden flex flex-col justify-center p-8 md:p-12 border border-slate-200 shadow-sm" style={{ backgroundColor: primaryColor + '10' }}>
               <div className="relative z-10">
                 <h3 className="font-bold uppercase text-[10px] tracking-widest mb-3" style={{ color: primaryColor }}>Seçkin Mutfak Sanatı</h3>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight max-w-2xl">Resital Lounge</h1>
+                <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight max-w-2xl">{restaurantName}</h1>
               </div>
             </div>
           </section>
@@ -167,7 +158,7 @@ const App: React.FC = () => {
           <CategoryFilter 
             products={menuItems}
             activeCategory={activeCategory} 
-            onCategoryChange={handleCategoryChange} 
+            onCategoryChange={(cat) => setActiveCategory(cat)} 
             searchQuery={searchQuery} 
             onSearchChange={setSearchQuery} 
             onProductSelect={setSelectedProduct} 
@@ -204,9 +195,9 @@ const App: React.FC = () => {
       )}
 
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} />
-      <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cartItems} onUpdateQuantity={(id, d) => setCartItems(p => p.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + d)} : i))} onRemove={(id) => setCartItems(p => p.filter(i => i.id !== id))} />
-      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
-      <BusinessInfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
+      <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cartItems} onUpdateQuantity={(id, d) => setCartItems(p => p.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + d)} : i))} onRemove={(id) => setCartItems(p => p.filter(i => i.id !== id))} primaryColor={primaryColor} />
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} primaryColor={primaryColor} />
+      <BusinessInfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} restaurantName={restaurantName} />
     </div>
   );
 };
