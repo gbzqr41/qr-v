@@ -18,6 +18,15 @@ interface CategoryFilterProps {
     borderWidth: string;
     shadow: string;
   };
+  catSettings?: {
+    bgColor: string;
+    textColor: string;
+    activeBgColor: string;
+    activeTextColor: string;
+    borderColor: string;
+    borderWidth: string;
+    shadow: string;
+  };
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ 
@@ -34,6 +43,15 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
     borderColor: '#e2e8f0',
     borderWidth: '1px',
     shadow: 'shadow-sm'
+  },
+  catSettings = {
+    bgColor: '#ffffff',
+    textColor: '#64748b',
+    activeBgColor: '#0f172a',
+    activeTextColor: '#ffffff',
+    borderColor: '#f1f5f9',
+    borderWidth: '1px',
+    shadow: 'shadow-none'
   }
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -101,23 +119,30 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
             ref={containerRef}
             className="flex flex-row gap-2.5 overflow-x-auto hide-scrollbar pb-1 scroll-smooth"
           >
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                data-category={cat}
-                onClick={() => handleCategoryClick(cat)}
-                style={activeCategory === cat ? { backgroundColor: 'var(--primary-color)' } : {}}
-                className={`
-                  whitespace-nowrap px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 group shrink-0
-                  ${activeCategory === cat 
-                    ? 'text-white shadow-lg' 
-                    : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'}
-                `}
-              >
-                {cat}
-                {activeCategory === cat && <div className="w-1 h-1 rounded-full bg-white animate-pulse" />}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  data-category={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                  style={{ 
+                    backgroundColor: isActive ? catSettings.activeBgColor : catSettings.bgColor,
+                    color: isActive ? catSettings.activeTextColor : catSettings.textColor,
+                    borderColor: catSettings.borderColor,
+                    borderWidth: catSettings.borderWidth,
+                    borderStyle: 'solid'
+                  }}
+                  className={`
+                    whitespace-nowrap px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 group shrink-0
+                    ${isActive ? 'shadow-lg' : ''} ${catSettings.shadow}
+                  `}
+                >
+                  {cat}
+                  {isActive && <div className="w-1 h-1 rounded-full bg-white animate-pulse" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </aside>

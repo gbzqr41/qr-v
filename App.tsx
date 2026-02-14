@@ -55,6 +55,17 @@ const App: React.FC = () => {
     shadow: 'shadow-sm'
   });
 
+  // Kategori Buton Ayarları State
+  const [catSettings, setCatSettings] = useState({
+    bgColor: '#ffffff',
+    textColor: '#64748b',
+    activeBgColor: '#0f172a',
+    activeTextColor: '#ffffff',
+    borderColor: '#f1f5f9',
+    borderWidth: '1px',
+    shadow: 'shadow-none'
+  });
+
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
@@ -94,6 +105,16 @@ const App: React.FC = () => {
             borderColor: settingsData.search_border_color || '#e2e8f0',
             borderWidth: settingsData.search_border_width || '1px',
             shadow: settingsData.search_shadow || 'shadow-sm'
+          });
+
+          setCatSettings({
+            bgColor: settingsData.cat_bg_color || '#ffffff',
+            textColor: settingsData.cat_text_color || '#64748b',
+            activeBgColor: settingsData.cat_active_bg_color || '#0f172a',
+            activeTextColor: settingsData.cat_active_text_color || '#ffffff',
+            borderColor: settingsData.cat_border_color || '#f1f5f9',
+            borderWidth: settingsData.cat_border_width || '1px',
+            shadow: settingsData.cat_shadow || 'shadow-none'
           });
         }
 
@@ -181,7 +202,7 @@ const App: React.FC = () => {
               </div>
             </div>
           </section>
-          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} searchSettings={searchSettings} />
+          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} searchSettings={searchSettings} catSettings={catSettings} />
           <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 pb-32">
             <div className="flex flex-col gap-10">
               {Object.values(CategoryType).map((category) => {

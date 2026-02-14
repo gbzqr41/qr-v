@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
-  Type, MousePointer2, Box, Layout, Image as ImageIcon
+  Type, MousePointer2, Box, Layout, Image as ImageIcon,
+  Layers
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -51,6 +52,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [searchBorderWidth, setSearchBorderWidth] = useState('1px');
   const [searchShadow, setSearchShadow] = useState('shadow-sm');
 
+  // Kategori Buton Ayarları
+  const [catBgColor, setCatBgColor] = useState('#ffffff');
+  const [catTextColor, setCatTextColor] = useState('#64748b');
+  const [catActiveBgColor, setCatActiveBgColor] = useState('#0f172a');
+  const [catActiveTextColor, setCatActiveTextColor] = useState('#ffffff');
+  const [catBorderColor, setCatBorderColor] = useState('#f1f5f9');
+  const [catBorderWidth, setCatBorderWidth] = useState('1px');
+  const [catShadow, setCatShadow] = useState('shadow-none');
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -76,6 +86,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setSearchBorderColor(settingsData.search_border_color || '#e2e8f0');
         setSearchBorderWidth(settingsData.search_border_width || '1px');
         setSearchShadow(settingsData.search_shadow || 'shadow-sm');
+
+        setCatBgColor(settingsData.cat_bg_color || '#ffffff');
+        setCatTextColor(settingsData.cat_text_color || '#64748b');
+        setCatActiveBgColor(settingsData.cat_active_bg_color || '#0f172a');
+        setCatActiveTextColor(settingsData.cat_active_text_color || '#ffffff');
+        setCatBorderColor(settingsData.cat_border_color || '#f1f5f9');
+        setCatBorderWidth(settingsData.cat_border_width || '1px');
+        setCatShadow(settingsData.cat_shadow || 'shadow-none');
       }
 
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -160,7 +178,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         search_bg_color: searchBgColor,
         search_border_color: searchBorderColor,
         search_border_width: searchBorderWidth,
-        search_shadow: searchShadow
+        search_shadow: searchShadow,
+        cat_bg_color: catBgColor,
+        cat_text_color: catTextColor,
+        cat_active_bg_color: catActiveBgColor,
+        cat_active_text_color: catActiveTextColor,
+        cat_border_color: catBorderColor,
+        cat_border_width: catBorderWidth,
+        cat_shadow: catShadow
       };
 
       const { error } = await supabase.from('settings').upsert(payload);
@@ -245,7 +270,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         )}
 
         {activeTab === 'design' && (
-          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-24">
+          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-32">
             <header className="flex flex-col gap-2 mb-8">
               <h2 className="text-3xl font-black text-slate-900">Görsel Kimlik</h2>
               <p className="text-slate-500 text-sm font-medium">Restoranınızın dijital dünyadaki görünümünü buradan özelleştirin.</p>
@@ -313,6 +338,57 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Rengi</label>
                     <input type="color" value={headerIconColor} onChange={e => setHeaderIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Kategori Buton Ayarları */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Kategori Butonları</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Normal Arka Plan</label>
+                    <input type="color" value={catBgColor} onChange={e => setCatBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Normal Yazı</label>
+                    <input type="color" value={catTextColor} onChange={e => setCatTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aktif Arka Plan</label>
+                    <input type="color" value={catActiveBgColor} onChange={e => setCatActiveBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aktif Yazı</label>
+                    <input type="color" value={catActiveTextColor} onChange={e => setCatActiveTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Rengi</label>
+                    <input type="color" value={catBorderColor} onChange={e => setCatBorderColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Kalınlığı</label>
+                    <select value={catBorderWidth} onChange={e => setCatBorderWidth(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
+                      <option value="0px">Yok</option>
+                      <option value="1px">İnce (1px)</option>
+                      <option value="2px">Orta (2px)</option>
+                      <option value="3px">Kalın (3px)</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge (Buton Gölgesi)</label>
+                    <select value={catShadow} onChange={e => setCatShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
+                      <option value="shadow-none">Yok</option>
+                      <option value="shadow-sm">Hafif</option>
+                      <option value="shadow-md">Belirgin</option>
+                      <option value="shadow-lg">Güçlü</option>
+                    </select>
                   </div>
                 </div>
               </div>
