@@ -39,15 +39,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Ayarları çek
-      const { data: settingsData } = await supabase.from('settings').select('*').eq('id', 1).maybeSingle();
-      if (settingsData) {
-        setPrimaryColor(settingsData.primary_color || '#0f172a');
-        setQrColor(settingsData.qr_color || '#0f172a');
-        setRestaurantName(settingsData.restaurant_name || 'Resital Lounge');
-        setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
-        setCardBgColor(settingsData.card_bg_color || '#ffffff');
-        setCardShadow(settingsData.card_shadow || 'shadow-sm');
+      // Ayarları güvenli çek
+      const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').eq('id', 1).maybeSingle();
+      
+      if (!settingsError && settingsData) {
+        if (settingsData.primary_color) setPrimaryColor(settingsData.primary_color);
+        if (settingsData.qr_color) setQrColor(settingsData.qr_color);
+        if (settingsData.restaurant_name) setRestaurantName(settingsData.restaurant_name);
+        if (settingsData.font_family) setFontFamily(settingsData.font_family);
+        if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
+        if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
       }
 
       // Ürünleri çek
@@ -101,7 +102,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       setEditingProduct(null);
       fetchData();
     } catch (err) {
-      alert('Kaydedilirken hata oluştu');
+      alert('Ürün kaydedilirken bir hata oluştu.');
     } finally {
       setSaveLoading(false);
     }
@@ -113,14 +114,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       await supabase.from('products').delete().eq('id', id);
       fetchData();
     } catch (err) {
-      alert('Silinemedi');
+      alert('Ürün silinemedi.');
     }
   };
 
   const saveDesignSettings = async () => {
     setSaveLoading(true);
     try {
-      const { error } = await supabase.from('settings').upsert({
+      // Temel verileri hazırla
+      const payload: any = {
         id: 1,
         primary_color: primaryColor,
         qr_color: qrColor,
@@ -128,9 +130,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         font_family: fontFamily,
         card_bg_color: cardBgColor,
         card_shadow: cardShadow
-      });
-      if (error) throw error;
-      alert('Tasarım güncellendi.');
+      };
+
+      const { error } = await supabase.from('settings').upsert(payload);
+      
+      if (error) {
+        if (error.message.includes('column') || error.message.includes('cache')) {
+          throw new Error('Supabase tablonuzda yeni sütunlar (card_bg_color vb.) eksik. Lütfen SQL editöründen bu sütunları ekleyin.');
+        }
+        throw error;
+      }
+      alert('Tasarım ayarları başarıyla güncellendi.');
     } catch (err: any) {
       alert('Hata: ' + err.message);
     } finally {

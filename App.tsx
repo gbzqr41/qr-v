@@ -43,19 +43,20 @@ const App: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // 1. Tasarım Ayarlarını Çek
-        const { data: settingsData } = await supabase
+        // 1. Tasarım Ayarlarını GÜVENLİ Çek
+        // Sütunların varlığını kontrol etmeden hatayı sessizce yakala
+        const { data: settingsData, error: settingsError } = await supabase
           .from('settings')
           .select('*')
           .eq('id', 1)
-          .single();
+          .maybeSingle();
         
-        if (settingsData) {
-          setPrimaryColor(settingsData.primary_color || '#0f172a');
-          setRestaurantName(settingsData.restaurant_name || 'Resital Lounge');
-          setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
-          setCardBgColor(settingsData.card_bg_color || '#ffffff');
-          setCardShadow(settingsData.card_shadow || 'shadow-sm');
+        if (!settingsError && settingsData) {
+          if (settingsData.primary_color) setPrimaryColor(settingsData.primary_color);
+          if (settingsData.restaurant_name) setRestaurantName(settingsData.restaurant_name);
+          if (settingsData.font_family) setFontFamily(settingsData.font_family);
+          if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
+          if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
         }
 
         // 2. Menü Ürünlerini Çek
@@ -81,7 +82,8 @@ const App: React.FC = () => {
         setMenuItems(formattedData);
       } catch (err: any) {
         console.error('Veri çekilemedi:', err);
-        if (err.code !== 'PGRST116') { 
+        // Sadece kritik hatalarda kullanıcıya mesaj göster
+        if (err.code !== 'PGRST116' && !err.message.includes('column')) { 
             setError('Veritabanı bağlantısı kurulamadı.');
         }
       } finally {
