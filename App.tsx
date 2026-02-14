@@ -27,25 +27,32 @@ const App: React.FC = () => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   
-  // Safe LocalStorage Access for Mobile Private Mode
-  const [primaryColor] = useState(() => {
-    try {
-      return localStorage.getItem('qresta_primary_color') || '#0f172a';
-    } catch {
-      return '#0f172a';
-    }
-  });
+  // Veritabanından gelecek tasarım ayarları
+  const [primaryColor, setPrimaryColor] = useState('#0f172a');
 
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const isManualScrolling = useRef(false);
 
-  // Supabase'den Menü Çekme
+  // Veritabanından Tasarım ve Menü Çekme
   useEffect(() => {
-    const fetchMenu = async () => {
+    const initializeApp = async () => {
       try {
         setLoading(true);
         setError(null);
+
+        // 1. Tasarım Ayarlarını Çek
+        const { data: settingsData } = await supabase
+          .from('settings')
+          .select('primary_color')
+          .eq('id', 1)
+          .single();
+        
+        if (settingsData?.primary_color) {
+          setPrimaryColor(settingsData.primary_color);
+        }
+
+        // 2. Menü Ürünlerini Çek
         const { data, error: sbError } = await supabase
           .from('products')
           .select('*')
@@ -67,14 +74,17 @@ const App: React.FC = () => {
 
         setMenuItems(formattedData);
       } catch (err: any) {
-        console.error('Menü çekilemedi:', err);
-        setError(err.message || 'Veritabanı bağlantı hatası');
+        console.error('Veri çekilemedi:', err);
+        // Tablo yoksa veya hata verirse varsayılanlarla devam et (fail-safe)
+        if (err.code !== 'PGRST116') { // Single record not found hatası değilse hata göster
+            setError('Veritabanı bağlantısı kurulamadı.');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    if (!showWelcome) fetchMenu();
+    if (!showWelcome) initializeApp();
   }, [showWelcome]);
 
   useEffect(() => {
@@ -82,7 +92,6 @@ const App: React.FC = () => {
       const isHashAdmin = window.location.hash === '#admin';
       setIsAdmin(isHashAdmin);
       if (isHashAdmin && !isAdminAuth) {
-        // Use a small delay for mobile browsers to ensure UI is ready
         setTimeout(() => {
           const pass = prompt("Yönetici Şifresi:");
           if (pass === "1234") setIsAdminAuth(true);

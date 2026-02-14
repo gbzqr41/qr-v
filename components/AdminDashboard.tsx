@@ -41,76 +41,52 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
 
-  // Tasarım Ayarları
-  const [qrColor, setQrColor] = useState(() => {
-    try {
-      return localStorage.getItem('qresta_qr_color') || '#0f172a';
-    } catch {
-      return '#0f172a';
-    }
-  });
-  
-  const [primaryColor, setPrimaryColor] = useState(() => {
-    try {
-      return localStorage.getItem('qresta_primary_color') || '#0f172a';
-    } catch {
-      return '#0f172a';
-    }
-  });
+  // Tasarım Ayarları (Başlangıçta veritabanından çekilecek)
+  const [qrColor, setQrColor] = useState('#0f172a');
+  const [primaryColor, setPrimaryColor] = useState('#0f172a');
   
   // API Ayarları
-  const [sbUrl, setSbUrl] = useState(() => {
-    try {
-      return localStorage.getItem('qresta_supabase_url') || '';
-    } catch {
-      return '';
-    }
-  });
-  
-  const [sbKey, setSbKey] = useState(() => {
-    try {
-      return localStorage.getItem('qresta_supabase_key') || '';
-    } catch {
-      return '';
-    }
-  });
-  
-  const [cfBucket, setCfBucket] = useState(() => {
-    try {
-      return localStorage.getItem('qresta_cf_bucket') || '';
-    } catch {
-      return '';
-    }
-  });
+  const [sbUrl, setSbUrl] = useState(() => localStorage.getItem('qresta_supabase_url') || '');
+  const [sbKey, setSbKey] = useState(() => localStorage.getItem('qresta_supabase_key') || '');
+  const [cfBucket, setCfBucket] = useState(() => localStorage.getItem('qresta_cf_bucket') || '');
 
-  const fetchMenu = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      setMenuItems((data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category_name as CategoryType,
-        image: item.image_url,
-        isPopular: item.is_popular,
-        calories: item.calories,
-        ingredients: item.ingredients || []
-      })));
-    } catch (err) {
-      console.error('Hata:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Başlangıçta ayarları ve menüyü çek
   useEffect(() => {
-    fetchMenu();
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // 1. Ayarları Çek
+        const { data: settingsData } = await supabase.from('settings').select('*').eq('id', 1).single();
+        if (settingsData) {
+          setPrimaryColor(settingsData.primary_color || '#0f172a');
+          setQrColor(settingsData.qr_color || '#0f172a');
+        }
+
+        // 2. Menüyü Çek
+        const { data: menuData, error: menuError } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (menuError) throw menuError;
+        setMenuItems((menuData || []).map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          category: item.category_name as CategoryType,
+          image: item.image_url,
+          isPopular: item.is_popular,
+          calories: item.calories,
+          ingredients: item.ingredients || []
+        })));
+      } catch (err) {
+        console.error('Hata:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -137,7 +113,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
       setIsModalOpen(false);
       setEditingProduct(null);
-      fetchMenu();
+      // Menüyü yenile
+      const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      setMenuItems((data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        category: item.category_name as CategoryType,
+        image: item.image_url,
+        isPopular: item.is_popular,
+        calories: item.calories,
+        ingredients: item.ingredients || []
+      })));
     } catch (err) {
       alert('Kaydedilemedi: ' + (err as any).message);
     } finally {
@@ -149,7 +137,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
     try {
       await supabase.from('products').delete().eq('id', id);
-      fetchMenu();
+      setMenuItems(prev => prev.filter(p => p.id !== id));
     } catch (err) {
       alert('Silinemedi');
     }
@@ -159,17 +147,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     localStorage.setItem('qresta_supabase_url', sbUrl);
     localStorage.setItem('qresta_supabase_key', sbKey);
     localStorage.setItem('qresta_cf_bucket', cfBucket);
-    alert('Ayarlar kaydedildi. Sayfa yenileniyor...');
+    alert('Sistem ayarları kaydedildi. Sayfa yenileniyor...');
     window.location.reload();
   };
 
-  const saveDesignSettings = () => {
-    localStorage.setItem('qresta_primary_color', primaryColor);
-    alert('Tasarım ayarları kaydedildi.');
-    window.location.reload();
+  const saveDesignSettings = async () => {
+    setSaveLoading(true);
+    try {
+      const { error } = await supabase.from('settings').upsert({
+        id: 1,
+        primary_color: primaryColor,
+        qr_color: qrColor
+      });
+
+      if (error) throw error;
+      alert('Tasarım ayarları başarıyla buluta kaydedildi. Tüm müşteriler artık bu rengi görecek.');
+    } catch (err: any) {
+      alert('Veritabanına kaydedilemedi: ' + err.message + '\nLütfen "settings" tablosunun Supabase üzerinde mevcut olduğundan emin olun.');
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
-  // QR kodun gideceği linki hesapla (admin hash'ini temizle)
   const getMenuUrl = () => {
     const currentUrl = window.location.href;
     return currentUrl.split('#')[0];
@@ -179,10 +178,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     <div className="space-y-10 animate-fade-in">
        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Görüntüleme', value: '1,284', icon: <Eye className="text-blue-500" />, positive: true },
-          { label: 'Geri Bildirim', value: '42', icon: <MessageSquare className="text-emerald-500" />, positive: true },
-          { label: 'Puan', value: '4.8', icon: <Star className="text-amber-500" />, positive: true },
-          { label: 'Ürün Sayısı', value: menuItems.length, icon: <Utensils className="text-purple-500" />, positive: true },
+          { label: 'Görüntüleme', value: '1,284', icon: <Eye className="text-blue-500" /> },
+          { label: 'Geri Bildirim', value: '42', icon: <MessageSquare className="text-emerald-500" /> },
+          { label: 'Puan', value: '4.8', icon: <Star className="text-amber-500" /> },
+          { label: 'Ürün Sayısı', value: menuItems.length, icon: <Utensils className="text-purple-500" /> },
         ].map((stat, idx) => (
           <div key={idx} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -193,13 +192,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             <p className="text-2xl font-black text-slate-900">{stat.value}</p>
           </div>
         ))}
-      </div>
-      <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-black mb-2">Supabase Bağlantısı</h2>
-          <p className="text-white/60 text-sm">Veritabanınız şu an {sbUrl ? 'Aktif' : 'Yapılandırılmamış'}</p>
-        </div>
-        {!sbUrl && <button onClick={() => setActiveTab('settings')} className="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold text-sm">Şimdi Bağla</button>}
       </div>
     </div>
   );
@@ -257,102 +249,58 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     </div>
   );
 
-  const renderSettings = () => (
-    <div className="max-w-4xl space-y-8 animate-fade-in">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Database className="w-6 h-6 text-blue-500" />
-          <h3 className="font-black text-slate-900">Supabase Yapılandırması</h3>
-        </div>
-        <div className="grid grid-cols-1 gap-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Project URL</label>
-            <input type="text" value={sbUrl} onChange={(e) => setSbUrl(e.target.value)} placeholder="https://xyz.supabase.co" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Anon Key</label>
-            <input type="password" value={sbKey} onChange={(e) => setSbKey(e.target.value)} placeholder="eyJhbG..." className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Cloud className="w-6 h-6 text-orange-500" />
-          <h3 className="font-black text-slate-900">Cloudflare R2 Ayarları (Resimler)</h3>
-        </div>
-        <div className="space-y-2">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bucket Name / Public URL</label>
-          <input type="text" value={cfBucket} onChange={(e) => setCfBucket(e.target.value)} placeholder="https://images.site.com" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm outline-none focus:ring-2 focus:ring-orange-500/20" />
-        </div>
-      </div>
-
-      <button onClick={saveSettings} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all">Tüm Ayarları Kaydet</button>
-    </div>
-  );
-
   const renderDesignSettings = () => (
     <div className="max-w-lg mx-auto space-y-10 animate-fade-in">
       <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8 text-center">
         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Palette className="w-8 h-8 text-slate-900" />
         </div>
-        <h3 className="text-xl font-black text-slate-900">Görsel Kimlik</h3>
+        <h3 className="text-xl font-black text-slate-900">Bulut Tabanlı Tasarım</h3>
         
         <div className="space-y-6 text-left">
           <div className="space-y-4">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Tema Rengi (Primary Color)</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Müşteri Paneli Ana Rengi</label>
             <div className="grid grid-cols-4 gap-4">
-              {[
-                { name: 'Lacivert', hex: '#0f172a' },
-                { name: 'Mavi', hex: '#2563eb' },
-                { name: 'Zümrüt', hex: '#059669' },
-                { name: 'Bordo', hex: '#dc2626' },
-                { name: 'Altın', hex: '#d97706' },
-                { name: 'Mor', hex: '#7c3aed' },
-                { name: 'Siyah', hex: '#000000' },
-                { name: 'Gri', hex: '#4b5563' }
-              ].map(color => (
+              {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
                 <button 
-                  key={color.hex} 
-                  onClick={() => setPrimaryColor(color.hex)}
-                  className={`aspect-square rounded-2xl border-4 transition-all active:scale-95 ${primaryColor === color.hex ? 'border-slate-900 scale-105 shadow-lg' : 'border-white'}`}
-                  style={{ backgroundColor: color.hex }}
-                  title={color.name}
+                  key={c} 
+                  onClick={() => setPrimaryColor(c)}
+                  className={`aspect-square rounded-2xl border-4 transition-all ${primaryColor === c ? 'border-slate-900 scale-105 shadow-lg' : 'border-white'}`}
+                  style={{ backgroundColor: c }}
                 />
               ))}
             </div>
-            <div className="pt-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Özel Renk Seçin</label>
-              <div className="flex items-center gap-4 mt-2">
-                <input 
-                  type="color" 
-                  value={primaryColor} 
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-12 h-12 rounded-xl border-none p-0 cursor-pointer overflow-hidden bg-transparent"
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">QR Kod Rengi</label>
+            <div className="flex gap-3">
+              {['#0f172a', '#2563eb', '#059669', '#dc2626'].map(c => (
+                <button 
+                  key={c} 
+                  onClick={() => setQrColor(c)} 
+                  className={`w-10 h-10 rounded-full border-2 ${qrColor === c ? 'border-slate-900 scale-110' : 'border-transparent'}`} 
+                  style={{ backgroundColor: c }} 
                 />
-                <input 
-                  type="text" 
-                  value={primaryColor} 
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="flex-1 bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-sm font-mono outline-none"
-                />
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
         <button 
           onClick={saveDesignSettings} 
-          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3"
+          disabled={saveLoading}
+          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
         >
-          <Save className="w-5 h-5" /> Değişiklikleri Uygula
+          {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} 
+          Tüm Cihazlara Uygula (Buluta Kaydet)
         </button>
       </div>
-
-      <div className="bg-slate-50 p-6 rounded-3xl border border-dashed border-slate-200">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
-          Seçtiğiniz renk uygulamanın butonları, ikonları ve vurgularında kullanılır.
+      
+      <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100">
+        <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest text-center mb-1">PRO BİLGİ</p>
+        <p className="text-xs text-blue-700 text-center font-medium leading-relaxed">
+          Buradaki değişiklikler anında Supabase veritabanına kaydedilir ve müşterileriniz sayfayı yenilediğinde yeni renkleri görür.
         </p>
       </div>
     </div>
@@ -381,28 +329,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           {activeTab === 'menu' && 'Ürün Yönetimi'}
           {activeTab === 'design' && 'Tasarım Ayarları'}
           {activeTab === 'settings' && 'Sistem Ayarları'}
-          {activeTab === 'qr' && 'QR Kod Özelleştirme'}
+          {activeTab === 'qr' && 'QR Kod Önizleme'}
         </h1>
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'menu' && renderMenuManagement()}
         {activeTab === 'design' && renderDesignSettings()}
-        {activeTab === 'settings' && renderSettings()}
+        {activeTab === 'settings' && (
+          <div className="max-w-4xl space-y-8 animate-fade-in">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+              <div className="flex items-center gap-3 mb-4">
+                <Database className="w-6 h-6 text-blue-500" />
+                <h3 className="font-black text-slate-900">Supabase Bağlantısı</h3>
+              </div>
+              <div className="space-y-4">
+                <input type="text" value={sbUrl} onChange={e => setSbUrl(e.target.value)} placeholder="Project URL" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm outline-none" />
+                <input type="password" value={sbKey} onChange={e => setSbKey(e.target.value)} placeholder="Anon Key" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm outline-none" />
+              </div>
+              <button onClick={saveSettings} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold">Ayarları Kaydet</button>
+            </div>
+          </div>
+        )}
         {activeTab === 'qr' && (
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center max-w-lg mx-auto">
             <div className="w-64 h-64 bg-slate-50 p-4 rounded-3xl border flex items-center justify-center mb-8">
               <QRCodeSVG value={getMenuUrl()} size={220} fgColor={qrColor} />
             </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 break-all text-center max-w-xs">
-              Link: {getMenuUrl()}
-            </p>
-            <div className="w-full space-y-4">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">QR Renk</label>
-              <div className="flex gap-3">
-                {['#0f172a', '#2563eb', '#059669', '#dc2626'].map(c => (
-                  <button key={c} onClick={() => { setQrColor(c); localStorage.setItem('qresta_qr_color', c); }} className={`w-10 h-10 rounded-full border-2 ${qrColor === c ? 'border-slate-900 scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />
-                ))}
-              </div>
-            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center break-all">{getMenuUrl()}</p>
           </div>
         )}
       </main>
@@ -410,48 +362,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       {/* Ürün Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-scale-in">
+          <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-xl font-black">{editingProduct?.id ? 'Ürünü Düzenle' : 'Yeni Ürün'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-full"><X /></button>
             </div>
             <form onSubmit={handleSaveProduct} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2 col-span-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase">Ürün Adı</label>
-                  <input required value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase">Fiyat (TL)</label>
-                  <input required type="number" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase">Kategori</label>
-                  <select value={editingProduct?.category} onChange={e => setEditingProduct(p => ({...p!, category: e.target.value as CategoryType}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100">
-                    {Object.values(CategoryType).map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase">Görsel URL (veya Cloudflare Linki)</label>
-                  <input required value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100" />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase">Açıklama</label>
-                  <textarea rows={3} value={editingProduct?.description || ''} onChange={e => setEditingProduct(p => ({...p!, description: e.target.value}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 resize-none" />
-                </div>
+              <input required placeholder="Ürün Adı" value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100" />
+              <div className="grid grid-cols-2 gap-4">
+                <input required type="number" placeholder="Fiyat" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100" />
+                <select value={editingProduct?.category} onChange={e => setEditingProduct(p => ({...p!, category: e.target.value as CategoryType}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100">
+                  {Object.values(CategoryType).map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
               </div>
-              <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-2">
-                {loading ? <Loader2 className="animate-spin" /> : <Save />} {editingProduct?.id ? 'Güncelle' : 'Kaydet'}
+              <input required placeholder="Görsel URL" value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100" />
+              <textarea placeholder="Açıklama" value={editingProduct?.description || ''} onChange={e => setEditingProduct(p => ({...p!, description: e.target.value}))} className="w-full bg-slate-50 p-4 rounded-xl outline-none border border-slate-100 resize-none" rows={3} />
+              <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black">
+                {loading ? <Loader2 className="animate-spin mx-auto" /> : 'Kaydet'}
               </button>
             </form>
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes scale-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .animate-scale-in { animation: scale-in 0.2s ease-out; }
-      `}</style>
     </div>
   );
 };
