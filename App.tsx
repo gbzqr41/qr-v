@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import Navbar from './components/Navbar.tsx';
@@ -8,10 +9,12 @@ import CartSheet from './components/CartSheet.tsx';
 import FeedbackModal from './components/FeedbackModal.tsx';
 import WelcomeScreen from './components/WelcomeScreen.tsx';
 import BusinessInfoModal from './components/BusinessInfoModal.tsx';
+import AdminDashboard from './components/AdminDashboard.tsx';
 import { MENU_DATA } from './constants.tsx';
 import { CategoryType, Product, CartItem } from './types.ts';
 
 const App: React.FC = () => {
+  const [isAdmin, setIsAdmin] = useState(window.location.hash === '#admin');
   const [showWelcome, setShowWelcome] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryType | null>(null);
@@ -27,6 +30,16 @@ const App: React.FC = () => {
   const scrollTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const handleHashChange = () => {
+      setIsAdmin(window.location.hash === '#admin');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) return;
+
     const handleScroll = () => {
       if (isManualScrolling.current || showWelcome) return;
 
@@ -77,7 +90,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [showWelcome]);
+  }, [showWelcome, isAdmin]);
 
   const handleCategoryChange = (cat: CategoryType | null, isManual: boolean = false) => {
     if (isManual && cat) {
@@ -116,6 +129,10 @@ const App: React.FC = () => {
   const removeFromCart = (id: string) => {
     setCartItems(prev => prev.filter(item => item.id !== id));
   };
+
+  if (isAdmin) {
+    return <AdminDashboard onClose={() => { window.location.hash = ''; }} />;
+  }
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const categories = Object.values(CategoryType);
