@@ -9,12 +9,12 @@ interface WelcomeScreenProps {
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
   return (
     <div className="fixed inset-0 z-[200] bg-slate-900 flex flex-col overflow-hidden">
-      {/* Background Image with Gradient Overlay - Optimized for performance */}
-      <div className="absolute inset-0">
+      {/* Background Image with Gradient Overlay - Static for performance on mobile */}
+      <div className="absolute inset-0 bg-slate-900">
         <img 
           src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=60&w=800" 
           alt="Welcome Background" 
-          className="w-full h-full object-cover opacity-60 scale-110 animate-slow-zoom"
+          className="w-full h-full object-cover opacity-60"
           loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
@@ -32,7 +32,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
 
         {/* Middle: Brand Logo & Title */}
         <div className="flex flex-col items-center gap-6">
-          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-white/10 animate-bounce-slow">
+          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-white/10">
             <span className="text-4xl font-black text-slate-900">R</span>
           </div>
           <div className="space-y-2">
@@ -55,23 +55,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
           </p>
         </div>
       </div>
-
-      <style>{`
-        @keyframes slow-zoom {
-          from { transform: scale(1); }
-          to { transform: scale(1.1); }
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-slow-zoom {
-          animation: slow-zoom 20s linear infinite alternate;
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 4s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 };

@@ -14,7 +14,7 @@ import { supabase } from './lib/supabase.ts';
 import { CategoryType, Product, CartItem } from './types.ts';
 
 const App: React.FC = () => {
-  const [isAdmin, setIsAdmin] = useState(window.location.hash === '#admin');
+  const [isAdmin, setIsAdmin] = useState(() => window.location.hash === '#admin');
   const [isAdminAuth, setIsAdminAuth] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -27,9 +27,16 @@ const App: React.FC = () => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   
-  const [primaryColor] = useState(() => localStorage.getItem('qresta_primary_color') || '#0f172a');
-  const [menuItems, setMenuItems] = useState<Product[]>([]);
+  // Safe LocalStorage Access for Mobile Private Mode
+  const [primaryColor] = useState(() => {
+    try {
+      return localStorage.getItem('qresta_primary_color') || '#0f172a';
+    } catch {
+      return '#0f172a';
+    }
+  });
 
+  const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const isManualScrolling = useRef(false);
 
@@ -75,9 +82,12 @@ const App: React.FC = () => {
       const isHashAdmin = window.location.hash === '#admin';
       setIsAdmin(isHashAdmin);
       if (isHashAdmin && !isAdminAuth) {
-        const pass = prompt("Yönetici Şifresi:");
-        if (pass === "1234") setIsAdminAuth(true);
-        else window.location.hash = "";
+        // Use a small delay for mobile browsers to ensure UI is ready
+        setTimeout(() => {
+          const pass = prompt("Yönetici Şifresi:");
+          if (pass === "1234") setIsAdminAuth(true);
+          else window.location.hash = "";
+        }, 100);
       }
     };
     handleHashChange();
