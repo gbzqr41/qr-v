@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, Wifi, Car, Baby, Clock, MapPin, Phone, Instagram, Copy, Check } from 'lucide-react';
+import { X, Wifi, Car, Baby, Clock, MapPin, Phone, Instagram, Copy, Check, MessageCircle } from 'lucide-react';
 
 interface BusinessInfoModalProps {
   isOpen: boolean;
@@ -148,6 +148,13 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose }
                 <div>
                   <p className="font-bold text-slate-900">Telefon</p>
                   <p className="text-sm text-slate-500">+90 (212) 555 00 00</p>
+                </div>
+              </div>
+              <div className="p-5 flex items-center gap-4">
+                <MessageCircle className="w-6 h-6 text-slate-400 shrink-0" />
+                <div>
+                  <p className="font-bold text-slate-900">WhatsApp</p>
+                  <p className="text-sm text-slate-500">+90 (555) 000 00 00</p>
                 </div>
               </div>
               <div className="p-5 flex items-center gap-4">
