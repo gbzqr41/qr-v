@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
-  TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle
+  TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
+  Type, MousePointer2, Box
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -123,7 +124,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       if (error) throw error;
       alert('Tasarım başarıyla güncellendi.');
     } catch (err: any) {
-      alert('Hata: ' + err.message + '\n\nİpucu: Eğer "column not found" diyorsa lütfen Supabase SQL editöründe verdiğim kodu çalıştırın.');
+      alert('Hata: ' + err.message);
     } finally {
       setSaveLoading(false);
     }
@@ -201,51 +202,143 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         )}
 
         {activeTab === 'design' && (
-          <div className="max-w-lg mx-auto space-y-8 animate-fade-in">
-            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-              <h3 className="text-xl font-black text-slate-900 text-center">Görsel Kimlik Ayarları</h3>
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Restoran Adı</label>
-                <input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2" />
-              </div>
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yazı Tipi (Font)</label>
-                <select value={fontFamily} onChange={e => setFontFamily(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2">
-                  <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
-                  <option value="Inter">Inter</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Poppins">Poppins</option>
-                </select>
-              </div>
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ana Renk</label>
-                <div className="grid grid-cols-4 gap-4">
-                  {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
-                    <button key={c} onClick={() => setPrimaryColor(c)} className={`aspect-square rounded-2xl border-4 transition-all ${primaryColor === c ? 'border-slate-900 scale-105' : 'border-white'}`} style={{ backgroundColor: c }} />
-                  ))}
+          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-24">
+            <header className="flex flex-col gap-2 mb-8">
+              <h2 className="text-3xl font-black text-slate-900">Görsel Kimlik</h2>
+              <p className="text-slate-500 text-sm font-medium">Restoranınızın dijital dünyadaki görünümünü buradan özelleştirin.</p>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Marka & Tipografi Kartı */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                    <Type className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Marka & Yazı Tipi</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label>
+                    <input 
+                      value={restaurantName} 
+                      onChange={e => setRestaurantName(e.target.value)} 
+                      placeholder="Örn: Resital Lounge"
+                      className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 transition-all font-bold" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Yazı Tipi Ailesi</label>
+                    <select 
+                      value={fontFamily} 
+                      onChange={e => setFontFamily(e.target.value)} 
+                      className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 font-bold appearance-none cursor-pointer"
+                    >
+                      <option value="Plus Jakarta Sans">Plus Jakarta Sans (Modern)</option>
+                      <option value="Inter">Inter (Temiz)</option>
+                      <option value="Montserrat">Montserrat (Klasik)</option>
+                      <option value="Poppins">Poppins (Yumuşak)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Arka Plan</label>
-                <div className="grid grid-cols-4 gap-4">
-                  {['#ffffff', '#f8fafc', '#f1f5f9', '#fff7ed'].map(c => (
-                    <button key={c} onClick={() => setCardBgColor(c)} className={`aspect-square rounded-2xl border-4 transition-all ${cardBgColor === c ? 'border-slate-900 scale-105' : 'border-white'}`} style={{ backgroundColor: c }} />
-                  ))}
+
+              {/* Renk Teması Kartı */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                    <Palette className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Renk Teması</h3>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vurgu Rengi (Accent)</label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
+                      <button 
+                        key={c} 
+                        onClick={() => setPrimaryColor(c)} 
+                        className={`aspect-square rounded-2xl border-4 transition-all hover:scale-105 active:scale-95 ${primaryColor === c ? 'border-slate-900' : 'border-white shadow-sm'}`} 
+                        style={{ backgroundColor: c }} 
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kart Gölgesi</label>
-                <select value={cardShadow} onChange={e => setCardShadow(e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:ring-2">
-                  <option value="shadow-none">Yok</option>
-                  <option value="shadow-sm">Hafif</option>
-                  <option value="shadow-md">Orta</option>
-                  <option value="shadow-xl">Belirgin</option>
-                  <option value="shadow-2xl">Yoğun</option>
-                </select>
+
+              {/* Kart Stilleri Kartı */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                    <Box className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Menü Kart Stili</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kart Arka Plan Rengi</label>
+                    <div className="flex flex-wrap gap-4">
+                      {[
+                        { val: '#ffffff', label: 'Beyaz' },
+                        { val: '#f8fafc', label: 'Buz' },
+                        { val: '#f1f5f9', label: 'Gümüş' },
+                        { val: '#fff7ed', label: 'Krem' }
+                      ].map(item => (
+                        <button 
+                          key={item.val} 
+                          onClick={() => setCardBgColor(item.val)} 
+                          className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs ${cardBgColor === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
+                        >
+                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: item.val }} />
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Derinlik (Gölge)</label>
+                    <div className="flex flex-wrap gap-3">
+                      {[
+                        { val: 'shadow-none', label: 'Düz' },
+                        { val: 'shadow-sm', label: 'Hafif' },
+                        { val: 'shadow-md', label: 'Orta' },
+                        { val: 'shadow-xl', label: 'Yüksek' }
+                      ].map(item => (
+                        <button 
+                          key={item.val} 
+                          onClick={() => setCardShadow(item.val)} 
+                          className={`flex-1 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs text-center ${cardShadow === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">
-                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Kaydet
-              </button>
+            </div>
+
+            {/* Sabit Alt Çubuk (Kaydet) */}
+            <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
+              <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
+                <div className="hidden md:block pl-4">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Bekleyen Değişiklikler</p>
+                  <p className="text-[10px] font-bold text-slate-500">Tasarımı yayına almak için kaydet butonuna basın.</p>
+                </div>
+                <button 
+                  onClick={saveDesignSettings} 
+                  disabled={saveLoading} 
+                  className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+                >
+                  {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} 
+                  Değişiklikleri Kaydet
+                </button>
+              </div>
             </div>
           </div>
         )}
