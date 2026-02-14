@@ -66,6 +66,14 @@ const App: React.FC = () => {
     shadow: 'shadow-none'
   });
 
+  // Kategori Ayraç ve Başlık Ayarları State
+  const [dividerSettings, setDividerSettings] = useState({
+    color: '#e2e8f0',
+    thickness: '1px',
+    shadow: 'shadow-none'
+  });
+  const [catTitleColor, setCatTitleColor] = useState('#0f172a');
+
   const [menuItems, setMenuItems] = useState<Product[]>([]);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
@@ -116,6 +124,14 @@ const App: React.FC = () => {
             borderWidth: settingsData.cat_border_width || '1px',
             shadow: settingsData.cat_shadow || 'shadow-none'
           });
+
+          setDividerSettings({
+            color: settingsData.cat_divider_color || '#e2e8f0',
+            thickness: settingsData.cat_divider_thickness || '1px',
+            shadow: settingsData.cat_divider_shadow || 'shadow-none'
+          });
+
+          setCatTitleColor(settingsData.cat_title_color || '#0f172a');
         }
 
         const { data, error: sbError } = await supabase
@@ -202,7 +218,7 @@ const App: React.FC = () => {
               </div>
             </div>
           </section>
-          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} searchSettings={searchSettings} catSettings={catSettings} />
+          <CategoryFilter products={menuItems} activeCategory={activeCategory} onCategoryChange={(cat) => setActiveCategory(cat)} searchQuery={searchQuery} onSearchChange={setSearchQuery} onProductSelect={setSelectedProduct} searchSettings={searchSettings} catSettings={catSettings} dividerSettings={dividerSettings} />
           <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 pb-32">
             <div className="flex flex-col gap-10">
               {Object.values(CategoryType).map((category) => {
@@ -210,7 +226,7 @@ const App: React.FC = () => {
                 if (productsInCategory.length === 0) return null;
                 return (
                   <section key={category} id={category} ref={(el) => { if(el) sectionRefs.current[category] = el; }} className="scroll-mt-[135px]">
-                    <h2 className="text-xl font-black text-slate-900 mb-6">{category}</h2>
+                    <h2 className="text-xl font-black mb-6 transition-colors" style={{ color: catTitleColor }}>{category}</h2>
                     <div className="grid grid-cols-2 gap-3 md:gap-6">
                       {productsInCategory.map(product => (<ProductCard key={product.id} product={product} onSelect={setSelectedProduct} onAdd={addToCart} />))}
                     </div>

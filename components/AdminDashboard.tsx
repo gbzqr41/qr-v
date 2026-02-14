@@ -5,7 +5,7 @@ import {
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
   Type, MousePointer2, Box, Layout, Image as ImageIcon,
-  Layers
+  Layers, Minus
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -61,6 +61,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [catBorderWidth, setCatBorderWidth] = useState('1px');
   const [catShadow, setCatShadow] = useState('shadow-none');
 
+  // Kategori Ayraç ve Başlık Ayarları
+  const [catDividerColor, setCatDividerColor] = useState('#e2e8f0');
+  const [catDividerThickness, setCatDividerThickness] = useState('1px');
+  const [catDividerShadow, setCatDividerShadow] = useState('shadow-none');
+  const [catTitleColor, setCatTitleColor] = useState('#0f172a');
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -94,6 +100,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setCatBorderColor(settingsData.cat_border_color || '#f1f5f9');
         setCatBorderWidth(settingsData.cat_border_width || '1px');
         setCatShadow(settingsData.cat_shadow || 'shadow-none');
+
+        setCatDividerColor(settingsData.cat_divider_color || '#e2e8f0');
+        setCatDividerThickness(settingsData.cat_divider_thickness || '1px');
+        setCatDividerShadow(settingsData.cat_divider_shadow || 'shadow-none');
+        setCatTitleColor(settingsData.cat_title_color || '#0f172a');
       }
 
       const { data: menuData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -185,7 +196,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         cat_active_text_color: catActiveTextColor,
         cat_border_color: catBorderColor,
         cat_border_width: catBorderWidth,
-        cat_shadow: catShadow
+        cat_shadow: catShadow,
+        cat_divider_color: catDividerColor,
+        cat_divider_thickness: catDividerThickness,
+        cat_divider_shadow: catDividerShadow,
+        cat_title_color: catTitleColor
       };
 
       const { error } = await supabase.from('settings').upsert(payload);
@@ -384,6 +399,45 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="col-span-2 space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge (Buton Gölgesi)</label>
                     <select value={catShadow} onChange={e => setCatShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
+                      <option value="shadow-none">Yok</option>
+                      <option value="shadow-sm">Hafif</option>
+                      <option value="shadow-md">Belirgin</option>
+                      <option value="shadow-lg">Güçlü</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kategori Ayraç ve Başlık Ayarları */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
+                    <Minus className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Ayraç ve Başlıklar</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Rengi</label>
+                    <input type="color" value={catDividerColor} onChange={e => setCatDividerColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Başlık Rengi</label>
+                    <input type="color" value={catTitleColor} onChange={e => setCatTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Kalınlığı</label>
+                    <select value={catDividerThickness} onChange={e => setCatDividerThickness(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
+                      <option value="0px">Yok</option>
+                      <option value="1px">İnce (1px)</option>
+                      <option value="2px">Orta (2px)</option>
+                      <option value="4px">Kalın (4px)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Gölgesi</label>
+                    <select value={catDividerShadow} onChange={e => setCatDividerShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
                       <option value="shadow-none">Yok</option>
                       <option value="shadow-sm">Hafif</option>
                       <option value="shadow-md">Belirgin</option>

@@ -27,6 +27,11 @@ interface CategoryFilterProps {
     borderWidth: string;
     shadow: string;
   };
+  dividerSettings?: {
+    color: string;
+    thickness: string;
+    shadow: string;
+  };
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ 
@@ -51,6 +56,11 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
     activeTextColor: '#ffffff',
     borderColor: '#f1f5f9',
     borderWidth: '1px',
+    shadow: 'shadow-none'
+  },
+  dividerSettings = {
+    color: '#e2e8f0',
+    thickness: '1px',
     shadow: 'shadow-none'
   }
 }) => {
@@ -91,7 +101,14 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
   return (
     <>
-      <aside className="w-full sticky top-0 z-40 bg-slate-50/90 backdrop-blur-md border-b border-slate-200/50">
+      <aside 
+        className={`w-full sticky top-0 z-40 bg-slate-50/90 backdrop-blur-md transition-all ${dividerSettings.shadow}`}
+        style={{ 
+          borderBottomColor: dividerSettings.color,
+          borderBottomWidth: dividerSettings.thickness,
+          borderBottomStyle: 'solid'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 py-3 space-y-3">
           <div className="relative">
             <Search 
