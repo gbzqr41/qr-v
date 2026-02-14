@@ -163,6 +163,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     window.location.reload();
   };
 
+  const saveDesignSettings = () => {
+    localStorage.setItem('qresta_primary_color', primaryColor);
+    alert('Tasarım ayarları kaydedildi.');
+    window.location.reload();
+  };
+
   // QR kodun gideceği linki hesapla (admin hash'ini temizle)
   const getMenuUrl = () => {
     const currentUrl = window.location.href;
@@ -285,6 +291,73 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     </div>
   );
 
+  const renderDesignSettings = () => (
+    <div className="max-w-lg mx-auto space-y-10 animate-fade-in">
+      <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8 text-center">
+        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Palette className="w-8 h-8 text-slate-900" />
+        </div>
+        <h3 className="text-xl font-black text-slate-900">Görsel Kimlik</h3>
+        
+        <div className="space-y-6 text-left">
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Tema Rengi (Primary Color)</label>
+            <div className="grid grid-cols-4 gap-4">
+              {[
+                { name: 'Lacivert', hex: '#0f172a' },
+                { name: 'Mavi', hex: '#2563eb' },
+                { name: 'Zümrüt', hex: '#059669' },
+                { name: 'Bordo', hex: '#dc2626' },
+                { name: 'Altın', hex: '#d97706' },
+                { name: 'Mor', hex: '#7c3aed' },
+                { name: 'Siyah', hex: '#000000' },
+                { name: 'Gri', hex: '#4b5563' }
+              ].map(color => (
+                <button 
+                  key={color.hex} 
+                  onClick={() => setPrimaryColor(color.hex)}
+                  className={`aspect-square rounded-2xl border-4 transition-all active:scale-95 ${primaryColor === color.hex ? 'border-slate-900 scale-105 shadow-lg' : 'border-white'}`}
+                  style={{ backgroundColor: color.hex }}
+                  title={color.name}
+                />
+              ))}
+            </div>
+            <div className="pt-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Özel Renk Seçin</label>
+              <div className="flex items-center gap-4 mt-2">
+                <input 
+                  type="color" 
+                  value={primaryColor} 
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-12 h-12 rounded-xl border-none p-0 cursor-pointer overflow-hidden bg-transparent"
+                />
+                <input 
+                  type="text" 
+                  value={primaryColor} 
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="flex-1 bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-sm font-mono outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={saveDesignSettings} 
+          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3"
+        >
+          <Save className="w-5 h-5" /> Değişiklikleri Uygula
+        </button>
+      </div>
+
+      <div className="bg-slate-50 p-6 rounded-3xl border border-dashed border-slate-200">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+          Seçtiğiniz renk uygulamanın butonları, ikonları ve vurgularında kullanılır.
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       <aside className="w-full md:w-64 bg-slate-900 text-white flex flex-col shrink-0">
@@ -295,6 +368,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         <nav className="flex-1 p-6 space-y-2">
           <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}><LayoutDashboard className="w-4 h-4" /> Panel</button>
           <button onClick={() => setActiveTab('menu')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'menu' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}><Utensils className="w-4 h-4" /> Menü Yönetimi</button>
+          <button onClick={() => setActiveTab('design')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'design' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}><Palette className="w-4 h-4" /> Tasarım Ayarları</button>
           <button onClick={() => setActiveTab('qr')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'qr' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}><QrCode className="w-4 h-4" /> QR Yönetimi</button>
           <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}><Settings className="w-4 h-4" /> Ayarlar</button>
         </nav>
@@ -305,11 +379,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         <h1 className="text-3xl font-black text-slate-900 mb-10">
           {activeTab === 'dashboard' && 'Genel Durum'}
           {activeTab === 'menu' && 'Ürün Yönetimi'}
+          {activeTab === 'design' && 'Tasarım Ayarları'}
           {activeTab === 'settings' && 'Sistem Ayarları'}
           {activeTab === 'qr' && 'QR Kod Özelleştirme'}
         </h1>
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'menu' && renderMenuManagement()}
+        {activeTab === 'design' && renderDesignSettings()}
         {activeTab === 'settings' && renderSettings()}
         {activeTab === 'qr' && (
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center max-w-lg mx-auto">
