@@ -33,6 +33,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
+  const [pageBgColor, setPageBgColor] = useState('#f8fafc');
   
   // Ürün Kartı Detay Ayarları
   const [cardPriceColor, setCardPriceColor] = useState('#0f172a');
@@ -108,6 +109,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setFontFamily(settingsData.font_family || 'Plus Jakarta Sans');
         setCardBgColor(settingsData.card_bg_color || '#ffffff');
         setCardShadow(settingsData.card_shadow || 'shadow-sm');
+        setPageBgColor(settingsData.page_bg_color || '#f8fafc');
         
         // Kart Detayları
         setCardPriceColor(settingsData.card_price_color || '#0f172a');
@@ -237,6 +239,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         font_family: fontFamily,
         card_bg_color: cardBgColor,
         card_shadow: cardShadow,
+        page_bg_color: pageBgColor,
         card_price_color: cardPriceColor,
         card_title_color: cardTitleColor,
         card_desc_color: cardDescColor,
@@ -474,19 +477,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Kalınlığı</label>
                     <select value={catBorderWidth} onChange={e => setCatBorderWidth(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="0px">Yok</option>
-                      <option value="1px">İnce (1px)</option>
-                      <option value="2px">Orta (2px)</option>
-                      <option value="3px">Kalın (3px)</option>
+                      <option value="0px">Yok</option><option value="1px">İnce (1px)</option><option value="2px">Orta (2px)</option><option value="3px">Kalın (3px)</option>
                     </select>
                   </div>
                   <div className="col-span-2 space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge (Buton Gölgesi)</label>
                     <select value={catShadow} onChange={e => setCatShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="shadow-none">Yok</option>
-                      <option value="shadow-sm">Hafif</option>
-                      <option value="shadow-md">Belirgin</option>
-                      <option value="shadow-lg">Güçlü</option>
+                      <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
                     </select>
                   </div>
                 </div>
@@ -513,19 +510,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Kalınlığı</label>
                     <select value={catDividerThickness} onChange={e => setCatDividerThickness(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="0px">Yok</option>
-                      <option value="1px">İnce (1px)</option>
-                      <option value="2px">Orta (2px)</option>
-                      <option value="4px">Kalın (4px)</option>
+                      <option value="0px">Yok</option><option value="1px">İnce (1px)</option><option value="2px">Orta (2px)</option><option value="4px">Kalın (4px)</option>
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Gölgesi</label>
                     <select value={catDividerShadow} onChange={e => setCatDividerShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="shadow-none">Yok</option>
-                      <option value="shadow-sm">Hafif</option>
-                      <option value="shadow-md">Belirgin</option>
-                      <option value="shadow-lg">Güçlü</option>
+                      <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
                     </select>
                   </div>
                 </div>
@@ -581,7 +572,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Bölüm 1: Genel ve Başlıklar */}
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detay Arka Plan</label>
@@ -601,7 +591,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     </div>
                   </div>
 
-                  {/* Bölüm 2: Kategori ve Bilgi Satırı */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-2">
@@ -639,7 +628,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     </div>
                   </div>
 
-                  {/* Bölüm 3: İçindekiler ve Alerjen Kutusu */}
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçindekiler Başlık</label>
@@ -663,15 +651,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         <input type="color" value={modalAllergenTitleColor} onChange={e => setModalAllergenTitleColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
                         <input type="color" value={modalAllergenDescColor} onChange={e => setModalAllergenDescColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <select value={modalAllergenBorderWidth} onChange={e => setModalAllergenBorderWidth(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1">
-                          <option value="0px">Sınır Yok</option><option value="1px">İnce</option><option value="2px">Orta</option>
-                        </select>
-                        <select value={modalAllergenShadow} onChange={e => setModalAllergenShadow(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1">
-                          <option value="shadow-none">Gölge Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option>
-                        </select>
-                      </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Genel Arka Plan Rengi Kartı */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                    <Palette className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Genel Arka Plan Rengi</h3>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Sayfa Arka Plan</label>
+                  <div className="grid grid-cols-5 gap-3 mb-4">
+                    {['#f8fafc', '#ffffff', '#f1f5f9', '#fafaf9', '#fdf2f8'].map(c => (
+                      <button 
+                        key={c} 
+                        onClick={() => setPageBgColor(c)} 
+                        className={`aspect-square rounded-2xl border-4 transition-all hover:scale-105 active:scale-95 ${pageBgColor === c ? 'border-slate-900' : 'border-white shadow-sm'}`} 
+                        style={{ backgroundColor: c }} 
+                      />
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Özel Renk Seç</label>
+                    <input type="color" value={pageBgColor} onChange={e => setPageBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
                   </div>
                 </div>
               </div>
@@ -734,24 +742,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     <select value={searchShadow} onChange={e => setSearchShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
                       <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
                     </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Renk Teması Kartı */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
-                    <Palette className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Vurgu Rengi</h3>
-                </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vurgu Rengi (Accent)</label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
-                      <button key={c} onClick={() => setPrimaryColor(c)} className={`aspect-square rounded-2xl border-4 transition-all hover:scale-105 active:scale-95 ${primaryColor === c ? 'border-slate-900' : 'border-white shadow-sm'}`} style={{ backgroundColor: c }} />
-                    ))}
                   </div>
                 </div>
               </div>

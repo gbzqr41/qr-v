@@ -32,6 +32,7 @@ const App: React.FC = () => {
   const [fontFamily, setFontFamily] = useState('Plus Jakarta Sans');
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
+  const [pageBgColor, setPageBgColor] = useState('#f8fafc');
 
   // Ürün Kart Detay Ayarları State
   const [cardSettings, setCardSettings] = useState({
@@ -128,6 +129,7 @@ const App: React.FC = () => {
           if (settingsData.font_family) setFontFamily(settingsData.font_family);
           if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
           if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
+          if (settingsData.page_bg_color) setPageBgColor(settingsData.page_bg_color);
           
           setCardSettings({
             priceColor: settingsData.card_price_color || '#0f172a',
@@ -256,7 +258,7 @@ const App: React.FC = () => {
   if (showWelcome) return <WelcomeScreen onStart={() => setShowWelcome(false)} />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 animate-fade-in" style={{ '--primary-color': primaryColor, '--card-bg': cardBgColor, '--card-shadow-class': cardShadow, fontFamily: `'${fontFamily}', sans-serif` } as any}>
+    <div className="min-h-screen flex flex-col animate-fade-in transition-colors duration-500" style={{ backgroundColor: pageBgColor, '--primary-color': primaryColor, '--card-bg': cardBgColor, '--card-shadow-class': cardShadow, fontFamily: `'${fontFamily}', sans-serif` } as any}>
       <Navbar onFeedbackClick={() => setIsFeedbackOpen(true)} onInfoClick={() => setIsInfoOpen(true)} restaurantName={restaurantName} headerSettings={headerSettings} />
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-4"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lezzetler Hazırlanıyor...</p></div>
