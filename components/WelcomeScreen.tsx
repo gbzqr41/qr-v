@@ -4,19 +4,48 @@ import { ChevronRight, Globe } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onStart: () => void;
+  config?: {
+    logo?: string;
+    title: string;
+    subtitle: string;
+    bgType: string;
+    bgUrl: string;
+  };
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ 
+  onStart, 
+  // Added logo: '' to the default config to ensure TypeScript recognizes the property
+  config = {
+    logo: '',
+    title: 'Resital Lounge',
+    subtitle: 'Gastronomi Sanatıyla Tanışın',
+    bgType: 'image',
+    bgUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=60&w=800'
+  }
+}) => {
   return (
     <div className="fixed inset-0 z-[200] bg-slate-900 flex flex-col overflow-hidden">
-      {/* Background Image with Gradient Overlay - Static for performance on mobile */}
+      {/* Background Layer */}
       <div className="absolute inset-0 bg-slate-900">
-        <img 
-          src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=60&w=800" 
-          alt="Welcome Background" 
-          className="w-full h-full object-cover opacity-60"
-          loading="eager"
-        />
+        {config.bgType === 'video' ? (
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline 
+            className="w-full h-full object-cover opacity-60"
+          >
+            <source src={config.bgUrl} type="video/mp4" />
+          </video>
+        ) : (
+          <img 
+            src={config.bgUrl} 
+            alt="Welcome Background" 
+            className="w-full h-full object-cover opacity-60"
+            loading="eager"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
       </div>
 
@@ -32,12 +61,17 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
 
         {/* Middle: Brand Logo & Title */}
         <div className="flex flex-col items-center gap-6">
-          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-white/10">
-            <span className="text-4xl font-black text-slate-900">R</span>
+          <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-white/10 overflow-hidden">
+            {/* config.logo is now properly typed due to the default value fix above */}
+            {config.logo ? (
+              <img src={config.logo} className="w-full h-full object-contain p-2" alt="Logo" />
+            ) : (
+              <span className="text-4xl font-black text-slate-900">{config.title.charAt(0)}</span>
+            )}
           </div>
           <div className="space-y-2">
-            <h1 className="text-4xl font-black text-white tracking-tight">Resital Lounge</h1>
-            <p className="text-slate-300 font-medium">Gastronomi Sanatıyla Tanışın</p>
+            <h1 className="text-4xl font-black text-white tracking-tight">{config.title}</h1>
+            <p className="text-slate-300 font-medium">{config.subtitle}</p>
           </div>
         </div>
 

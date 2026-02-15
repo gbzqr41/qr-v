@@ -46,7 +46,13 @@ const App: React.FC = () => {
     paymentMethods: 'Nakit, Kredi Kartı',
     serviceOptions: 'Masaya Servis, Gel-Al',
     workingHours: 'Her gün: 09:00 - 22:00',
-    businessFeatures: [] as any[]
+    businessFeatures: [] as any[],
+    // Açılış Ekranı Ayarları
+    welcomeLogo: '',
+    welcomeTitle: 'Resital Lounge',
+    welcomeSubtitle: 'Gastronomi Sanatıyla Tanışın',
+    welcomeBgType: 'image',
+    welcomeBgUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=60&w=800'
   });
 
   // Ürün Kart Detay Ayarları State
@@ -146,7 +152,7 @@ const App: React.FC = () => {
           if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
           if (settingsData.page_bg_color) setPageBgColor(settingsData.page_bg_color);
 
-          // İşletme Profili
+          // İşletme Profili & Açılış Ekranı
           setBusinessProfile({
             description: settingsData.description || 'Modern Gastronomi Deneyimi',
             phone: settingsData.phone || '',
@@ -158,7 +164,12 @@ const App: React.FC = () => {
             paymentMethods: settingsData.payment_methods || 'Nakit, Kredi Kartı',
             serviceOptions: settingsData.service_options || 'Masaya Servis, Gel-Al',
             workingHours: settingsData.working_hours || 'Her gün: 09:00 - 22:00',
-            businessFeatures: settingsData.business_features || []
+            businessFeatures: settingsData.business_features || [],
+            welcomeLogo: settingsData.welcome_logo || '',
+            welcomeTitle: settingsData.welcome_title || 'Resital Lounge',
+            welcomeSubtitle: settingsData.welcome_subtitle || 'Gastronomi Sanatıyla Tanışın',
+            welcomeBgType: settingsData.welcome_bg_type || 'image',
+            welcomeBgUrl: settingsData.welcome_bg_url || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=60&w=800'
           });
           
           setCardSettings({
@@ -285,7 +296,13 @@ const App: React.FC = () => {
   };
 
   if (isAdmin && isAdminAuth) return <AdminDashboard onClose={() => { setIsAdminAuth(false); window.location.hash = ''; }} />;
-  if (showWelcome) return <WelcomeScreen onStart={() => setShowWelcome(false)} />;
+  if (showWelcome) return <WelcomeScreen onStart={() => setShowWelcome(false)} config={{ 
+    logo: businessProfile.welcomeLogo, 
+    title: businessProfile.welcomeTitle, 
+    subtitle: businessProfile.welcomeSubtitle,
+    bgType: businessProfile.welcomeBgType,
+    bgUrl: businessProfile.welcomeBgUrl
+  }} />;
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in transition-colors duration-500" style={{ backgroundColor: pageBgColor, '--primary-color': primaryColor, '--card-bg': cardBgColor, '--card-shadow-class': cardShadow, fontFamily: `'${fontFamily}', sans-serif` } as any}>
