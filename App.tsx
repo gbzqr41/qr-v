@@ -34,6 +34,16 @@ const App: React.FC = () => {
   const [cardShadow, setCardShadow] = useState('shadow-sm');
   const [pageBgColor, setPageBgColor] = useState('#f8fafc');
 
+  // İşletme Profili State
+  const [businessProfile, setBusinessProfile] = useState({
+    description: 'Modern Gastronomi Deneyimi',
+    phone: '',
+    address: '',
+    wifiPassword: 'resital2024',
+    instagramUsername: '',
+    coverImageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200'
+  });
+
   // Ürün Kart Detay Ayarları State
   const [cardSettings, setCardSettings] = useState({
     priceColor: '#0f172a',
@@ -130,6 +140,16 @@ const App: React.FC = () => {
           if (settingsData.card_bg_color) setCardBgColor(settingsData.card_bg_color);
           if (settingsData.card_shadow) setCardShadow(settingsData.card_shadow);
           if (settingsData.page_bg_color) setPageBgColor(settingsData.page_bg_color);
+
+          // İşletme Profili
+          setBusinessProfile({
+            description: settingsData.description || 'Modern Gastronomi Deneyimi',
+            phone: settingsData.phone || '',
+            address: settingsData.address || '',
+            wifiPassword: settingsData.wifi_password || 'resital2024',
+            instagramUsername: settingsData.instagram_username || '',
+            coverImageUrl: settingsData.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200'
+          });
           
           setCardSettings({
             priceColor: settingsData.card_price_color || '#0f172a',
@@ -307,7 +327,7 @@ const App: React.FC = () => {
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} modalSettings={modalSettings} />
       <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cartItems} onUpdateQuantity={(id, d) => setCartItems(p => p.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + d)} : i))} onRemove={(id) => setCartItems(p => p.filter(i => i.id !== id))} primaryColor={primaryColor} />
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} primaryColor={primaryColor} />
-      <BusinessInfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} restaurantName={restaurantName} />
+      <BusinessInfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} restaurantName={restaurantName} profile={businessProfile} />
     </div>
   );
 };

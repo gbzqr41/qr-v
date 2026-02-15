@@ -5,7 +5,7 @@ import {
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
   Type, MousePointer2, Box, Layout, Image as ImageIcon,
-  Layers, Minus, Maximize2
+  Layers, Minus, Maximize2, Store, Phone, MapPin, Instagram, Wifi, Image
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -34,6 +34,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [cardBgColor, setCardBgColor] = useState('#ffffff');
   const [cardShadow, setCardShadow] = useState('shadow-sm');
   const [pageBgColor, setPageBgColor] = useState('#f8fafc');
+
+  // İşletme Profili Ayarları
+  const [description, setDescription] = useState('Modern Gastronomi Deneyimi');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [wifiPassword, setWifiPassword] = useState('resital2024');
+  const [instagramUsername, setInstagramUsername] = useState('');
+  const [coverImageUrl, setCoverImageUrl] = useState('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200');
   
   // Ürün Kartı Detay Ayarları
   const [cardPriceColor, setCardPriceColor] = useState('#0f172a');
@@ -110,6 +118,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setCardBgColor(settingsData.card_bg_color || '#ffffff');
         setCardShadow(settingsData.card_shadow || 'shadow-sm');
         setPageBgColor(settingsData.page_bg_color || '#f8fafc');
+
+        // İşletme Profili
+        setDescription(settingsData.description || 'Modern Gastronomi Deneyimi');
+        setPhone(settingsData.phone || '');
+        setAddress(settingsData.address || '');
+        setWifiPassword(settingsData.wifi_password || 'resital2024');
+        setInstagramUsername(settingsData.instagram_username || '');
+        setCoverImageUrl(settingsData.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200');
         
         // Kart Detayları
         setCardPriceColor(settingsData.card_price_color || '#0f172a');
@@ -240,6 +256,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         card_bg_color: cardBgColor,
         card_shadow: cardShadow,
         page_bg_color: pageBgColor,
+        description: description,
+        phone: phone,
+        address: address,
+        wifi_password: wifiPassword,
+        instagram_username: instagramUsername,
+        cover_image_url: coverImageUrl,
         card_price_color: cardPriceColor,
         card_title_color: cardTitleColor,
         card_desc_color: cardDescColor,
@@ -292,7 +314,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
       const { error } = await supabase.from('settings').upsert(payload);
       if (error) throw error;
-      alert('Tasarım başarıyla güncellendi.');
+      alert('Tasarım ve Ayarlar başarıyla güncellendi.');
     } catch (err: any) {
       alert('Hata: ' + err.message);
     } finally {
@@ -776,14 +798,140 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         )}
 
         {activeTab === 'settings' && (
-          <div className="max-w-lg mx-auto space-y-8 animate-fade-in">
-            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-               <div className="flex items-center gap-4 border-b border-slate-50 pb-6"><div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center"><CheckCircle className="text-emerald-500 w-6 h-6" /></div><div><h3 className="font-black text-slate-900">Hesap Durumu</h3><p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Premium Plan Aktif</p></div></div>
-               <div className="space-y-6">
-                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl"><div className="flex items-center gap-3"><CreditCard className="w-5 h-5 text-slate-400" /><span className="text-sm font-bold text-slate-600">Aktif Paket</span></div><span className="text-sm font-black text-slate-900">Qresta PLUS+</span></div>
-                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl"><div className="flex items-center gap-3"><Database className="w-5 h-5 text-slate-400" /><span className="text-sm font-bold text-slate-600">Bitiş Tarihi</span></div><span className="text-sm font-black text-slate-900">31.12.2025</span></div>
-               </div>
-               <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100"><p className="text-xs font-medium text-blue-700 leading-relaxed">Premium üye olduğunuz için tüm özelliklere sınırsız erişiminiz bulunmaktadır.</p></div>
+          <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-32">
+            <header className="flex flex-col gap-2 mb-8">
+              <h2 className="text-3xl font-black text-slate-900">İşletme Ayarları</h2>
+              <p className="text-slate-500 text-sm font-medium">Profil bilgilerinizi ve hesap detaylarınızı buradan yönetin.</p>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* İşletme Profili Formu */}
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8 md:col-span-2">
+                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
+                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                    <Store className="text-blue-500 w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-slate-900">İşletme Profili</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Temel Bilgiler</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label>
+                    <div className="relative">
+                      <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={restaurantName} 
+                        onChange={e => setRestaurantName(e.target.value)} 
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slogan / Açıklama</label>
+                    <input 
+                      value={description} 
+                      onChange={e => setDescription(e.target.value)} 
+                      placeholder="Örn: Şehrin En İyi Mutfağı"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefon</label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={phone} 
+                        onChange={e => setPhone(e.target.value)} 
+                        placeholder="Örn: +90 212 000 0000"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Instagram Kullanıcı Adı</label>
+                    <div className="relative">
+                      <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={instagramUsername} 
+                        onChange={e => setInstagramUsername(e.target.value)} 
+                        placeholder="Örn: resitallounge"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">WiFi Şifresi</label>
+                    <div className="relative">
+                      <Wifi className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={wifiPassword} 
+                        onChange={e => setWifiPassword(e.target.value)} 
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kapak Görseli URL</label>
+                    <div className="relative">
+                      <Image className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={coverImageUrl} 
+                        onChange={e => setCoverImageUrl(e.target.value)} 
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Adres</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-4 text-slate-300 w-4 h-4" />
+                      <textarea 
+                        rows={3}
+                        value={address} 
+                        onChange={e => setAddress(e.target.value)} 
+                        placeholder="İşletmenizin açık adresi..."
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hesap Durumu Kartı */}
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-4 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+                    <CheckCircle className="text-emerald-500 w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-900">Hesap Durumu</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                    <span className="text-xs font-bold text-slate-600">Paket</span>
+                    <span className="text-xs font-black text-slate-900">Qresta PLUS+</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                    <span className="text-xs font-bold text-slate-600">Bitiş</span>
+                    <span className="text-xs font-black text-slate-900">31.12.2025</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sabit Alt Çubuk */}
+            <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
+              <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
+                <div className="hidden md:block pl-4">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Ayarları Uygula</p>
+                  <p className="text-[10px] font-bold text-slate-500">Profil değişikliklerini kaydetmek için basın.</p>
+                </div>
+                <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
+                  {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Ayarları Kaydet
+                </button>
+              </div>
             </div>
           </div>
         )}
