@@ -46,10 +46,7 @@ const App: React.FC = () => {
     paymentMethods: 'Nakit, Kredi Kartı',
     serviceOptions: 'Masaya Servis, Gel-Al',
     workingHours: 'Her gün: 09:00 - 22:00',
-    hasPlayground: false,
-    hasChildArea: false,
-    isNoSmoking: true,
-    hasParking: false
+    businessFeatures: [] as any[]
   });
 
   // Ürün Kart Detay Ayarları State
@@ -161,10 +158,7 @@ const App: React.FC = () => {
             paymentMethods: settingsData.payment_methods || 'Nakit, Kredi Kartı',
             serviceOptions: settingsData.service_options || 'Masaya Servis, Gel-Al',
             workingHours: settingsData.working_hours || 'Her gün: 09:00 - 22:00',
-            hasPlayground: settingsData.has_playground || false,
-            hasChildArea: settingsData.has_child_area || false,
-            isNoSmoking: settingsData.is_no_smoking ?? true,
-            hasParking: settingsData.has_parking || false
+            businessFeatures: settingsData.business_features || []
           });
           
           setCardSettings({

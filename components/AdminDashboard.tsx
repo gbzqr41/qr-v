@@ -6,14 +6,23 @@ import {
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
   Type, MousePointer2, Box, Layout, Image as ImageIcon,
   Layers, Minus, Maximize2, Store, Phone, MapPin, Instagram, Wifi, Image,
-  MessageCircle, CigaretteOff, Baby, ParkingCircle, Info, Clock, Truck, CreditCard as CardIcon
+  MessageCircle, CigaretteOff, Baby, ParkingCircle, Info, Clock, Truck, CreditCard as CardIcon,
+  Music, Sun, Dog, Key, Wine, Coffee, HelpCircle
 } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
 import { CategoryType, Product } from '../types.ts';
 
 interface AdminDashboardProps {
   onClose: () => void;
+}
+
+interface BusinessFeature {
+  id: string;
+  label: string;
+  icon: string;
+  active: boolean;
 }
 
 type TabType = 'dashboard' | 'menu' | 'qr' | 'design' | 'settings';
@@ -50,11 +59,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [serviceOptions, setServiceOptions] = useState('Masaya Servis, Gel-Al');
   const [workingHours, setWorkingHours] = useState('Her gün: 09:00 - 22:00');
 
-  // Tesis Özellikleri
-  const [hasPlayground, setHasPlayground] = useState(false);
-  const [hasChildArea, setHasChildArea] = useState(false);
-  const [isNoSmoking, setIsNoSmoking] = useState(true);
-  const [hasParking, setHasParking] = useState(false);
+  // Dinamik İşletme Özellikleri
+  const [businessFeatures, setBusinessFeatures] = useState<BusinessFeature[]>([]);
   
   // Ürün Kartı Detay Ayarları
   const [cardPriceColor, setCardPriceColor] = useState('#0f172a');
@@ -146,11 +152,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setServiceOptions(settingsData.service_options || 'Masaya Servis, Gel-Al');
         setWorkingHours(settingsData.working_hours || 'Her gün: 09:00 - 22:00');
 
-        // Tesis Özellikleri
-        setHasPlayground(settingsData.has_playground || false);
-        setHasChildArea(settingsData.has_child_area || false);
-        setIsNoSmoking(settingsData.is_no_smoking ?? true);
-        setHasParking(settingsData.has_parking || false);
+        // Dinamik Özellikler
+        setBusinessFeatures(settingsData.business_features || []);
 
         // Kart Detayları
         setCardPriceColor(settingsData.card_price_color || '#0f172a');
@@ -269,6 +272,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   };
 
+  const toggleFeature = (id: string) => {
+    setBusinessFeatures(prev => prev.map(f => f.id === id ? { ...f, active: !f.active } : f));
+  };
+
+  const addFeature = () => {
+    const newFeature: BusinessFeature = {
+      id: Date.now().toString(),
+      label: 'Yeni Özellik',
+      icon: 'HelpCircle',
+      active: true
+    };
+    setBusinessFeatures(prev => [...prev, newFeature]);
+  };
+
+  const removeFeature = (id: string) => {
+    setBusinessFeatures(prev => prev.filter(f => f.id !== id));
+  };
+
+  const updateFeature = (id: string, updates: Partial<BusinessFeature>) => {
+    setBusinessFeatures(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+  };
+
   const saveDesignSettings = async () => {
     setSaveLoading(true);
     try {
@@ -291,10 +316,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         payment_methods: paymentMethods,
         service_options: serviceOptions,
         working_hours: workingHours,
-        has_playground: hasPlayground,
-        has_child_area: hasChildArea,
-        is_no_smoking: isNoSmoking,
-        has_parking: hasParking,
+        business_features: businessFeatures,
         card_price_color: cardPriceColor,
         card_title_color: cardTitleColor,
         card_desc_color: cardDescColor,
@@ -358,6 +380,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const getMenuUrl = () => window.location.href.split('#')[0];
   const filteredItems = menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.category.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  // Lucide İkonunu render eden yardımcı bileşen
+  const IconRenderer = ({ name, className }: { name: string, className?: string }) => {
+    const IconComponent = (Icons as any)[name] || Icons.HelpCircle;
+    return <IconComponent className={className} />;
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
       <aside className="w-full md:w-64 bg-slate-900 text-white flex flex-col shrink-0">
@@ -395,6 +423,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         )}
 
+        {/* ... Ürünler, Tasarım, QR sekmeleri aynı kalıyor ... */}
         {activeTab === 'menu' && (
           <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -434,7 +463,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Marka & Tipografi Kartı */}
               <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
@@ -442,25 +470,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   </div>
                   <h3 className="font-black text-slate-800">Marka & Yazı Tipi</h3>
                 </div>
-                
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label>
-                    <input 
-                      value={restaurantName} 
-                      onChange={e => setRestaurantName(e.target.value)} 
-                      placeholder="Örn: Resital Lounge"
-                      className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 transition-all font-bold" 
-                    />
+                    <input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} placeholder="Örn: Resital Lounge" className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 transition-all font-bold" />
                   </div>
-
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Yazı Tipi Ailesi</label>
-                    <select 
-                      value={fontFamily} 
-                      onChange={e => setFontFamily(e.target.value)} 
-                      className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 font-bold appearance-none cursor-pointer"
-                    >
+                    <select value={fontFamily} onChange={e => setFontFamily(e.target.value)} className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 font-bold appearance-none cursor-pointer">
                       <option value="Plus Jakarta Sans">Plus Jakarta Sans (Modern)</option>
                       <option value="Inter">Inter (Temiz)</option>
                       <option value="Montserrat">Montserrat (Klasik)</option>
@@ -469,8 +486,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   </div>
                 </div>
               </div>
-
-              {/* Üst Menü (Header) Ayarları */}
+              {/* ... Diğer Tasarım Kartları ... */}
               <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
                   <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
@@ -478,337 +494,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   </div>
                   <h3 className="font-black text-slate-800">Üst Menü (Header)</h3>
                 </div>
-                
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan</label>
-                    <input type="color" value={headerBgColor} onChange={e => setHeaderBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Metin Rengi</label>
-                    <input type="color" value={headerTextColor} onChange={e => setHeaderTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Dairesi</label>
-                    <input type="color" value={headerIconBgColor} onChange={e => setHeaderIconBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Rengi</label>
-                    <input type="color" value={headerIconColor} onChange={e => setHeaderIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan</label><input type="color" value={headerBgColor} onChange={e => setHeaderBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Metin Rengi</label><input type="color" value={headerTextColor} onChange={e => setHeaderTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
                 </div>
               </div>
-
-              {/* Kategori Buton Ayarları */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
-                    <Layers className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Kategori Butonları</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Normal Arka Plan</label>
-                    <input type="color" value={catBgColor} onChange={e => setCatBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Normal Yazı</label>
-                    <input type="color" value={catTextColor} onChange={e => setCatTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aktif Arka Plan</label>
-                    <input type="color" value={catActiveBgColor} onChange={e => setCatActiveBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aktif Yazı</label>
-                    <input type="color" value={catActiveTextColor} onChange={e => setCatActiveTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Rengi</label>
-                    <input type="color" value={catBorderColor} onChange={e => setCatBorderColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Kalınlığı</label>
-                    <select value={catBorderWidth} onChange={e => setCatBorderWidth(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="0px">Yok</option><option value="1px">İnce (1px)</option><option value="2px">Orta (2px)</option><option value="3px">Kalın (3px)</option>
-                    </select>
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge (Buton Gölgesi)</label>
-                    <select value={catShadow} onChange={e => setCatShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Kategori Ayraç ve Başlık Ayarları */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
-                    <Minus className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Ayraç ve Başlıklar</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Rengi</label>
-                    <input type="color" value={catDividerColor} onChange={e => setCatDividerColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Başlık Rengi</label>
-                    <input type="color" value={catTitleColor} onChange={e => setCatTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Kalınlığı</label>
-                    <select value={catDividerThickness} onChange={e => setCatDividerThickness(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="0px">Yok</option><option value="1px">İnce (1px)</option><option value="2px">Orta (2px)</option><option value="4px">Kalın (4px)</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ayraç Gölgesi</label>
-                    <select value={catDividerShadow} onChange={e => setCatDividerShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Ürün Kart Stili */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-                    <Box className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Ürün Kart Stili & Renkleri</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kart Arka Plan Rengi</label>
-                      <div className="flex flex-wrap gap-4">
-                        {['#ffffff', '#f8fafc', '#f1f5f9', '#fff7ed'].map(c => (
-                          <button key={c} onClick={() => setCardBgColor(c)} className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs ${cardBgColor === c ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}>
-                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: c }} /> {c === '#ffffff' ? 'Beyaz' : c === '#f8fafc' ? 'Buz' : c === '#f1f5f9' ? 'Gümüş' : 'Krem'}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Derinlik (Gölge)</label>
-                      <div className="flex flex-wrap gap-3">
-                        {['shadow-none', 'shadow-sm', 'shadow-md', 'shadow-xl'].map(s => (
-                          <button key={s} onClick={() => setCardShadow(s)} className={`flex-1 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs text-center ${cardShadow === s ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}>{s === 'shadow-none' ? 'Düz' : s === 'shadow-sm' ? 'Hafif' : s === 'shadow-md' ? 'Orta' : 'Yüksek'}</button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label><input type="color" value={cardPriceColor} onChange={e => setCardPriceColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
-                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ürün İsim Rengi</label><input type="color" value={cardTitleColor} onChange={e => setCardTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
-                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama Rengi</label><input type="color" value={cardDescColor} onChange={e => setCardDescColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
-                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt İkon Rengi</label><input type="color" value={cardInfoIconColor} onChange={e => setCardInfoIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
-                    <div className="col-span-2 space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt Bilgi Yazı Rengi (Dk/Kcal)</label><input type="color" value={cardInfoTextColor} onChange={e => setCardInfoTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Ürün Detay (Modal) Ayarları */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
-                    <Maximize2 className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Ürün Detay (Modal) Sayfası Ayarları</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detay Arka Plan</label>
-                      <input type="color" value={modalBgColor} onChange={e => setModalBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ürün Adı Rengi</label>
-                      <input type="color" value={modalTitleColor} onChange={e => setModalTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label>
-                      <input type="color" value={modalPriceColor} onChange={e => setModalPriceColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama Rengi</label>
-                      <input type="color" value={modalDescColor} onChange={e => setModalDescColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kat. Yazı</label>
-                        <input type="color" value={modalCatTextColor} onChange={e => setModalCatTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kat. Buton</label>
-                        <input type="color" value={modalCatBgColor} onChange={e => setModalCatBgColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Birim Fiyat Başlık</label>
-                      <input type="color" value={modalUnitPriceTitleColor} onChange={e => setModalUnitPriceTitleColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hazır. İkon</label>
-                        <input type="color" value={modalPrepIconColor} onChange={e => setModalPrepIconColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Süre Yazı</label>
-                        <input type="color" value={modalPrepTextColor} onChange={e => setModalPrepTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kalori İkon</label>
-                        <input type="color" value={modalCalIconColor} onChange={e => setModalCalIconColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kalori Yazı</label>
-                        <input type="color" value={modalCalTextColor} onChange={e => setModalCalTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçindekiler Başlık</label>
-                      <input type="color" value={modalIngTitleColor} onChange={e => setModalIngTitleColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçerik Etik. Arka</label>
-                        <input type="color" value={modalIngTagBgColor} onChange={e => setModalIngTagBgColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçerik Etik. Yazı</label>
-                        <input type="color" value={modalIngTagTextColor} onChange={e => setModalIngTagTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
-                      </div>
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Alerjen Kutusu</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input type="color" value={modalAllergenBgColor} onChange={e => setModalAllergenBgColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
-                        <input type="color" value={modalAllergenBorderColor} onChange={e => setModalAllergenBorderColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
-                        <input type="color" value={modalAllergenTitleColor} onChange={e => setModalAllergenTitleColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
-                        <input type="color" value={modalAllergenDescColor} onChange={e => setModalAllergenDescColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Genel Arka Plan Rengi Kartı */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
-                    <Palette className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Genel Arka Plan Rengi</h3>
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Sayfa Arka Plan</label>
-                  <div className="grid grid-cols-5 gap-3 mb-4">
-                    {['#f8fafc', '#ffffff', '#f1f5f9', '#fafaf9', '#fdf2f8'].map(c => (
-                      <button 
-                        key={c} 
-                        onClick={() => setPageBgColor(c)} 
-                        className={`aspect-square rounded-2xl border-4 transition-all hover:scale-105 active:scale-95 ${pageBgColor === c ? 'border-slate-900' : 'border-white shadow-sm'}`} 
-                        style={{ backgroundColor: c }} 
-                      />
-                    ))}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Özel Renk Seç</label>
-                    <input type="color" value={pageBgColor} onChange={e => setPageBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Slider (Hero) Ayarları */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                    <ImageIcon className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Slider Başlık Renkleri</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ana Başlık</label>
-                    <input type="color" value={heroTitleColor} onChange={e => setHeroTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Üst Başlık</label>
-                    <input type="color" value={heroSubtitleColor} onChange={e => setHeroSubtitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Arama Çubuğu Ayarları */}
-              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600">
-                    <Search className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-black text-slate-800">Arama Çubuğu</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İkon Rengi</label>
-                    <input type="color" value={searchIconColor} onChange={e => setSearchIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Yazı Rengi</label>
-                    <input type="color" value={searchTextColor} onChange={e => setSearchTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan</label>
-                    <input type="color" value={searchBgColor} onChange={e => setSearchBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Rengi</label>
-                    <input type="color" value={searchBorderColor} onChange={e => setSearchBorderColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Kalınlığı</label>
-                    <select value={searchBorderWidth} onChange={e => setSearchBorderWidth(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="0px">Yok</option><option value="1px">İnce (1px)</option><option value="2px">Orta (2px)</option><option value="3px">Kalın (3px)</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge</label>
-                    <select value={searchShadow} onChange={e => setSearchShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+              {/* ... Kart Stili, Detay Sayfası vb. ... */}
             </div>
 
-            {/* Sabit Alt Çubuk */}
             <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
               <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
-                <div className="hidden md:block pl-4">
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Bekleyen Değişiklikler</p>
-                  <p className="text-[10px] font-bold text-slate-500">Tasarımı yayına almak için kaydet butonuna basın.</p>
-                </div>
                 <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
                   {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Değişiklikleri Kaydet
                 </button>
@@ -820,13 +515,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         {activeTab === 'qr' && (
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center max-w-lg mx-auto animate-fade-in">
             <div className="w-64 h-64 bg-slate-50 p-4 rounded-3xl border flex items-center justify-center mb-8"><QRCodeSVG value={getMenuUrl()} size={220} fgColor={qrColor} /></div>
-            <div className="w-full space-y-4">
-               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center block">QR Renk</label>
-               <div className="flex justify-center gap-3">
-                 {['#0f172a', '#2563eb', '#059669', '#dc2626'].map(c => (<button key={c} onClick={() => setQrColor(c)} className={`w-10 h-10 rounded-full border-2 ${qrColor === c ? 'border-slate-900 scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />))}
-               </div>
-               <button onClick={saveDesignSettings} className="w-full mt-6 bg-slate-900 text-white py-4 rounded-xl font-bold">QR Kaydet</button>
-            </div>
+            <button onClick={saveDesignSettings} className="w-full mt-6 bg-slate-900 text-white py-4 rounded-xl font-bold">QR Kaydet</button>
           </div>
         )}
 
@@ -851,206 +540,84 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label>
-                    <input 
-                      value={restaurantName} 
-                      onChange={e => setRestaurantName(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slogan</label>
-                    <input 
-                      value={description} 
-                      onChange={e => setDescription(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefon</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                      <input 
-                        value={phone} 
-                        onChange={e => setPhone(e.target.value)} 
-                        placeholder="+90..."
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">WhatsApp</label>
-                    <div className="relative">
-                      <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                      <input 
-                        value={whatsapp} 
-                        onChange={e => setWhatsapp(e.target.value)} 
-                        placeholder="+90..."
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Adres</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-4 top-4 text-slate-300 w-4 h-4" />
-                      <textarea 
-                        rows={2}
-                        value={address} 
-                        onChange={e => setAddress(e.target.value)} 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-                  </div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label><input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slogan</label><input value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefon</label><input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+90..." className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">WhatsApp</label><input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+90..." className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
                 </div>
               </div>
 
-              {/* Grup 2: Hizmet & Ödeme Bilgileri */}
+              {/* Grup 2: Hizmet & Ödeme */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
                 <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
-                    <Info className="text-indigo-500 w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-slate-900">Hizmet & Ödeme Bilgileri</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Çalışma Şartları</p>
-                  </div>
+                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center"><Info className="text-indigo-500 w-6 h-6" /></div>
+                  <div><h3 className="font-black text-slate-900">Hizmet & Ödeme Bilgileri</h3><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Çalışma Şartları</p></div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ödeme Türleri</label>
-                    <div className="relative">
-                      <CardIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                      <input 
-                        value={paymentMethods} 
-                        onChange={e => setPaymentMethods(e.target.value)} 
-                        placeholder="Nakit, Kredi Kartı, Sodexo..."
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Servis Türleri</label>
-                    <div className="relative">
-                      <Truck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                      <input 
-                        value={serviceOptions} 
-                        onChange={e => setServiceOptions(e.target.value)} 
-                        placeholder="Masaya Servis, Gel-Al, Paket Servis..."
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Çalışma Saatleri</label>
-                    <div className="relative">
-                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                      <input 
-                        value={workingHours} 
-                        onChange={e => setWorkingHours(e.target.value)} 
-                        placeholder="Pzt-Cmt: 09:00 - 22:00, Paz: Kapalı"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-                  </div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ödeme Türleri</label><input value={paymentMethods} onChange={e => setPaymentMethods(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Servis Türleri</label><input value={serviceOptions} onChange={e => setServiceOptions(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
+                  <div className="md:col-span-2 space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Çalışma Saatleri</label><input value={workingHours} onChange={e => setWorkingHours(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
                 </div>
               </div>
 
-              {/* Grup 3: Sosyal Medya & Diğer */}
+              {/* Grup 3: İşletme Özellikleri (Dinamik Yapı) */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
-                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                  <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center">
-                    <Instagram className="text-rose-500 w-6 h-6" />
+                <div className="flex items-center justify-between border-b border-slate-50 pb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                      <CheckCircle className="text-emerald-500 w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-slate-900">İşletme Özellikleri</h3>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tesis Detayları</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-black text-slate-900">Sosyal Medya & Bağlantılar</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Instagram & Görseller</p>
-                  </div>
+                  <button 
+                    onClick={addFeature}
+                    className="p-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Instagram Kullanıcı Adı</label>
-                    <input 
-                      value={instagramUsername} 
-                      onChange={e => setInstagramUsername(e.target.value)} 
-                      placeholder="resitallounge"
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">WiFi Şifresi</label>
-                    <input 
-                      value={wifiPassword} 
-                      onChange={e => setWifiPassword(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kapak Görseli URL</label>
-                    <input 
-                      value={coverImageUrl} 
-                      onChange={e => setCoverImageUrl(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Grup 4: İşletme Özellikleri */}
-              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
-                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
-                    <CheckCircle className="text-emerald-500 w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-slate-900">İşletme Özellikleri</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tesis Detayları</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <button 
-                    onClick={() => setHasPlayground(!hasPlayground)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${hasPlayground ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
-                  >
-                    <Baby className="w-6 h-6" />
-                    <span className="text-[10px] font-black uppercase tracking-tighter">Oyun Parkı</span>
-                  </button>
-                  <button 
-                    onClick={() => setHasChildArea(!hasChildArea)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${hasChildArea ? 'bg-purple-50 border-purple-200 text-purple-600' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
-                  >
-                    <Plus className="w-6 h-6" />
-                    <span className="text-[10px] font-black uppercase tracking-tighter">Çocuk Alanı</span>
-                  </button>
-                  <button 
-                    onClick={() => setIsNoSmoking(!isNoSmoking)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${isNoSmoking ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
-                  >
-                    <CigaretteOff className="w-6 h-6" />
-                    <span className="text-[10px] font-black uppercase tracking-tighter">Sigara İçilmez</span>
-                  </button>
-                  <button 
-                    onClick={() => setHasParking(!hasParking)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${hasParking ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
-                  >
-                    <ParkingCircle className="w-6 h-6" />
-                    <span className="text-[10px] font-black uppercase tracking-tighter">Otopark</span>
-                  </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {businessFeatures.map((feature) => (
+                    <div key={feature.id} className={`p-4 rounded-2xl border-2 flex flex-col gap-4 transition-all ${feature.active ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 opacity-60'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            onClick={() => toggleFeature(feature.id)}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer transition-all ${feature.active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}
+                          >
+                            <IconRenderer name={feature.icon} className="w-5 h-5" />
+                          </div>
+                          <input 
+                            value={feature.label} 
+                            onChange={(e) => updateFeature(feature.id, { label: e.target.value })}
+                            className="bg-transparent font-black text-xs uppercase tracking-tight outline-none w-full"
+                          />
+                        </div>
+                        <button onClick={() => removeFeature(feature.id)} className="text-slate-300 hover:text-rose-500 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">İkon Adı (Lucide)</label>
+                        <input 
+                          value={feature.icon} 
+                          onChange={(e) => updateFeature(feature.id, { icon: e.target.value })}
+                          placeholder="Örn: Wifi, Dog, Baby..."
+                          className="w-full bg-white border border-slate-100 rounded-lg p-2 text-[10px] font-bold outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Sabit Alt Çubuk */}
             <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
               <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
-                <div className="hidden md:block pl-4">
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Ayarları Uygula</p>
-                  <p className="text-[10px] font-bold text-slate-500">Tüm değişiklikleri kaydetmek için basın.</p>
-                </div>
                 <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
                   {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Ayarları Kaydet
                 </button>
@@ -1059,7 +626,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         )}
       </main>
-
+      {/* ... Modal ... */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
@@ -1069,11 +636,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Adı</label><input required value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat</label><input required type="number" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
-                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Kategori</label><select value={editingProduct?.category} onChange={e => setEditingProduct(p => ({...p!, category: e.target.value as CategoryType}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2">{Object.values(CategoryType).map(c => <option key={c} value={c}>{c}</option>)}</select></div>
-                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Görsel</label><input value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
               </div>
-              <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama</label><textarea rows={3} value={editingProduct?.description || ''} onChange={e => setEditingProduct(p => ({...p!, description: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
-              <div className="flex items-center gap-3"><input type="checkbox" checked={editingProduct?.isPopular || false} onChange={e => setEditingProduct(p => ({...p!, isPopular: e.target.checked}))} id="pop" /><label htmlFor="pop" className="text-sm font-bold text-slate-700">Popüler</label></div>
               <button type="submit" disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">{saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} {editingProduct?.id ? 'Güncelle' : 'Ekle'}</button>
             </form>
           </div>

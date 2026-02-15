@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { X, Wifi, Clock, MapPin, Phone, Instagram, Copy, Check, MessageCircle, CigaretteOff, Baby, ParkingCircle, Plus, Truck, CreditCard } from 'lucide-react';
+import * as Icons from 'lucide-react';
 
 interface BusinessInfoModalProps {
   isOpen: boolean;
@@ -17,10 +18,12 @@ interface BusinessInfoModalProps {
     paymentMethods: string;
     serviceOptions: string;
     workingHours: string;
-    hasPlayground: boolean;
-    hasChildArea: boolean;
-    isNoSmoking: boolean;
-    hasParking: boolean;
+    businessFeatures?: Array<{
+      id: string;
+      label: string;
+      icon: string;
+      active: boolean;
+    }>;
   };
 }
 
@@ -44,6 +47,11 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose, 
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const IconRenderer = ({ name, className }: { name: string, className?: string }) => {
+    const IconComponent = (Icons as any)[name] || Icons.HelpCircle;
+    return <IconComponent className={className} />;
   };
 
   if (!isOpen) return null;
@@ -184,36 +192,20 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
 
-            {/* Grup 4: İşletme Özellikleri */}
-            <div className="space-y-4">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">İşletme Özellikleri</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {profile?.hasPlayground && (
-                  <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col items-center gap-2 text-blue-600">
-                    <Baby className="w-6 h-6" />
-                    <span className="text-[9px] font-black uppercase tracking-tight">Oyun Parkı</span>
-                  </div>
-                )}
-                {profile?.hasChildArea && (
-                  <div className="bg-purple-50/50 p-4 rounded-2xl border border-purple-100 flex flex-col items-center gap-2 text-purple-600">
-                    <Plus className="w-6 h-6" />
-                    <span className="text-[9px] font-black uppercase tracking-tight">Çocuk Alanı</span>
-                  </div>
-                )}
-                {profile?.isNoSmoking && (
-                  <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100 flex flex-col items-center gap-2 text-rose-600">
-                    <CigaretteOff className="w-6 h-6" />
-                    <span className="text-[9px] font-black uppercase tracking-tight">Sigara İçilmez</span>
-                  </div>
-                )}
-                {profile?.hasParking && (
-                  <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col items-center gap-2 text-amber-600">
-                    <ParkingCircle className="w-6 h-6" />
-                    <span className="text-[9px] font-black uppercase tracking-tight">Otopark</span>
-                  </div>
-                )}
+            {/* Grup 4: İşletme Özellikleri (Dinamik) */}
+            {profile?.businessFeatures && profile.businessFeatures.filter(f => f.active).length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">İşletme Özellikleri</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {profile.businessFeatures.filter(f => f.active).map((feature) => (
+                    <div key={feature.id} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center gap-2 text-slate-600">
+                      <IconRenderer name={feature.icon} className="w-6 h-6" />
+                      <span className="text-[9px] font-black uppercase tracking-tight text-center">{feature.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
