@@ -41,6 +41,30 @@ const App: React.FC = () => {
     infoIconColor: '#cbd5e1',
     infoTextColor: '#94a3b8'
   });
+
+  // Ürün Detay (Modal) Ayarları State
+  const [modalSettings, setModalSettings] = useState({
+    bgColor: '#ffffff',
+    catTextColor: '#64748b',
+    catBgColor: '#f1f5f9',
+    titleColor: '#0f172a',
+    priceColor: '#0f172a',
+    descColor: '#64748b',
+    unitPriceTitleColor: '#94a3b8',
+    prepIconColor: '#cbd5e1',
+    prepTextColor: '#334155',
+    calIconColor: '#f97316',
+    calTextColor: '#334155',
+    ingTitleColor: '#94a3b8',
+    ingTagBgColor: '#f8fafc',
+    ingTagTextColor: '#475569',
+    allergenBgColor: '#fff1f2',
+    allergenBorderColor: '#ffe4e6',
+    allergenBorderWidth: '1px',
+    allergenShadow: 'shadow-none',
+    allergenTitleColor: '#e11d48',
+    allergenDescColor: '#9f1239'
+  });
   
   // Header Ayarları State
   const [headerSettings, setHeaderSettings] = useState({
@@ -111,6 +135,29 @@ const App: React.FC = () => {
             descColor: settingsData.card_desc_color || '#64748b',
             infoIconColor: settingsData.card_info_icon_color || '#cbd5e1',
             infoTextColor: settingsData.card_info_text_color || '#94a3b8'
+          });
+
+          setModalSettings({
+            bgColor: settingsData.modal_bg_color || '#ffffff',
+            catTextColor: settingsData.modal_cat_text_color || '#64748b',
+            catBgColor: settingsData.modal_cat_bg_color || '#f1f5f9',
+            titleColor: settingsData.modal_title_color || '#0f172a',
+            priceColor: settingsData.modal_price_color || '#0f172a',
+            descColor: settingsData.modal_desc_color || '#64748b',
+            unitPriceTitleColor: settingsData.modal_unit_price_title_color || '#94a3b8',
+            prepIconColor: settingsData.modal_prep_icon_color || '#cbd5e1',
+            prepTextColor: settingsData.modal_prep_text_color || '#334155',
+            calIconColor: settingsData.modal_cal_icon_color || '#f97316',
+            calTextColor: settingsData.modal_cal_text_color || '#334155',
+            ingTitleColor: settingsData.modal_ing_title_color || '#94a3b8',
+            ingTagBgColor: settingsData.modal_ing_tag_bg_color || '#f8fafc',
+            ingTagTextColor: settingsData.modal_ing_tag_text_color || '#475569',
+            allergenBgColor: settingsData.modal_allergen_bg_color || '#fff1f2',
+            allergenBorderColor: settingsData.modal_allergen_border_color || '#ffe4e6',
+            allergenBorderWidth: settingsData.modal_allergen_border_width || '1px',
+            allergenShadow: settingsData.modal_allergen_shadow || 'shadow-none',
+            allergenTitleColor: settingsData.modal_allergen_title_color || '#e11d48',
+            allergenDescColor: settingsData.modal_allergen_desc_color || '#9f1239'
           });
 
           setHeaderSettings({
@@ -255,7 +302,7 @@ const App: React.FC = () => {
         </>
       )}
       {cartItems.length > 0 && (<button onClick={() => setIsCartOpen(true)} className="fixed bottom-6 right-6 z-[45] text-white p-4 rounded-full shadow-2xl flex items-center gap-3 active:scale-95 transition-transform" style={{ backgroundColor: primaryColor }}><ShoppingBag className="w-6 h-6" /><span className="font-bold text-sm">{cartItems.reduce((s, i) => s + i.quantity, 0)}</span></button>)}
-      <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} />
+      <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={addToCart} modalSettings={modalSettings} />
       <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cartItems} onUpdateQuantity={(id, d) => setCartItems(p => p.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + d)} : i))} onRemove={(id) => setCartItems(p => p.filter(i => i.id !== id))} primaryColor={primaryColor} />
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} primaryColor={primaryColor} />
       <BusinessInfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} restaurantName={restaurantName} />

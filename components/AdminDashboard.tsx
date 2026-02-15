@@ -5,7 +5,7 @@ import {
   Edit2, Trash2, Save, QrCode, Palette, X, Loader2, Database,
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
   Type, MousePointer2, Box, Layout, Image as ImageIcon,
-  Layers, Minus
+  Layers, Minus, Maximize2
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -40,6 +40,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [cardDescColor, setCardDescColor] = useState('#64748b');
   const [cardInfoIconColor, setCardInfoIconColor] = useState('#cbd5e1');
   const [cardInfoTextColor, setCardInfoTextColor] = useState('#94a3b8');
+
+  // Ürün Detay (Modal) Ayarları
+  const [modalBgColor, setModalBgColor] = useState('#ffffff');
+  const [modalCatTextColor, setModalCatTextColor] = useState('#64748b');
+  const [modalCatBgColor, setModalCatBgColor] = useState('#f1f5f9');
+  const [modalTitleColor, setModalTitleColor] = useState('#0f172a');
+  const [modalPriceColor, setModalPriceColor] = useState('#0f172a');
+  const [modalDescColor, setModalDescColor] = useState('#64748b');
+  const [modalUnitPriceTitleColor, setModalUnitPriceTitleColor] = useState('#94a3b8');
+  const [modalPrepIconColor, setModalPrepIconColor] = useState('#cbd5e1');
+  const [modalPrepTextColor, setModalPrepTextColor] = useState('#334155');
+  const [modalCalIconColor, setModalCalIconColor] = useState('#f97316');
+  const [modalCalTextColor, setModalCalTextColor] = useState('#334155');
+  const [modalIngTitleColor, setModalIngTitleColor] = useState('#94a3b8');
+  const [modalIngTagBgColor, setModalIngTagBgColor] = useState('#f8fafc');
+  const [modalIngTagTextColor, setModalIngTagTextColor] = useState('#475569');
+  const [modalAllergenBgColor, setModalAllergenBgColor] = useState('#fff1f2');
+  const [modalAllergenBorderColor, setModalAllergenBorderColor] = useState('#ffe4e6');
+  const [modalAllergenBorderWidth, setModalAllergenBorderWidth] = useState('1px');
+  const [modalAllergenShadow, setModalAllergenShadow] = useState('shadow-none');
+  const [modalAllergenTitleColor, setModalAllergenTitleColor] = useState('#e11d48');
+  const [modalAllergenDescColor, setModalAllergenDescColor] = useState('#9f1239');
   
   // Header Ayarları
   const [headerBgColor, setHeaderBgColor] = useState('#ffffff');
@@ -93,6 +115,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setCardDescColor(settingsData.card_desc_color || '#64748b');
         setCardInfoIconColor(settingsData.card_info_icon_color || '#cbd5e1');
         setCardInfoTextColor(settingsData.card_info_text_color || '#94a3b8');
+
+        // Modal Detayları
+        setModalBgColor(settingsData.modal_bg_color || '#ffffff');
+        setModalCatTextColor(settingsData.modal_cat_text_color || '#64748b');
+        setModalCatBgColor(settingsData.modal_cat_bg_color || '#f1f5f9');
+        setModalTitleColor(settingsData.modal_title_color || '#0f172a');
+        setModalPriceColor(settingsData.modal_price_color || '#0f172a');
+        setModalDescColor(settingsData.modal_desc_color || '#64748b');
+        setModalUnitPriceTitleColor(settingsData.modal_unit_price_title_color || '#94a3b8');
+        setModalPrepIconColor(settingsData.modal_prep_icon_color || '#cbd5e1');
+        setModalPrepTextColor(settingsData.modal_prep_text_color || '#334155');
+        setModalCalIconColor(settingsData.modal_cal_icon_color || '#f97316');
+        setModalCalTextColor(settingsData.modal_cal_text_color || '#334155');
+        setModalIngTitleColor(settingsData.modal_ing_title_color || '#94a3b8');
+        setModalIngTagBgColor(settingsData.modal_ing_tag_bg_color || '#f8fafc');
+        setModalIngTagTextColor(settingsData.modal_ing_tag_text_color || '#475569');
+        setModalAllergenBgColor(settingsData.modal_allergen_bg_color || '#fff1f2');
+        setModalAllergenBorderColor(settingsData.modal_allergen_border_color || '#ffe4e6');
+        setModalAllergenBorderWidth(settingsData.modal_allergen_border_width || '1px');
+        setModalAllergenShadow(settingsData.modal_allergen_shadow || 'shadow-none');
+        setModalAllergenTitleColor(settingsData.modal_allergen_title_color || '#e11d48');
+        setModalAllergenDescColor(settingsData.modal_allergen_desc_color || '#9f1239');
 
         setHeaderBgColor(settingsData.header_bg_color || '#ffffff');
         setHeaderTextColor(settingsData.header_text_color || '#0f172a');
@@ -198,6 +242,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         card_desc_color: cardDescColor,
         card_info_icon_color: cardInfoIconColor,
         card_info_text_color: cardInfoTextColor,
+        modal_bg_color: modalBgColor,
+        modal_cat_text_color: modalCatTextColor,
+        modal_cat_bg_color: modalCatBgColor,
+        modal_title_color: modalTitleColor,
+        modal_price_color: modalPriceColor,
+        modal_desc_color: modalDescColor,
+        modal_unit_price_title_color: modalUnitPriceTitleColor,
+        modal_prep_icon_color: modalPrepIconColor,
+        modal_prep_text_color: modalPrepTextColor,
+        modal_cal_icon_color: modalCalIconColor,
+        modal_cal_text_color: modalCalTextColor,
+        modal_ing_title_color: modalIngTitleColor,
+        modal_ing_tag_bg_color: modalIngTagBgColor,
+        modal_ing_tag_text_color: modalIngTagTextColor,
+        modal_allergen_bg_color: modalAllergenBgColor,
+        modal_allergen_border_color: modalAllergenBorderColor,
+        modal_allergen_border_width: modalAllergenBorderWidth,
+        modal_allergen_shadow: modalAllergenShadow,
+        modal_allergen_title_color: modalAllergenTitleColor,
+        modal_allergen_desc_color: modalAllergenDescColor,
         header_bg_color: headerBgColor,
         header_text_color: headerTextColor,
         header_icon_bg_color: headerIconBgColor,
@@ -467,7 +531,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Menü Kart Stili Genişletilmiş */}
+              {/* Ürün Kart Stili */}
               <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
                 <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
                   <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
@@ -477,71 +541,136 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Mevcut Arka Plan ve Gölge Ayarları */}
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kart Arka Plan Rengi</label>
                       <div className="flex flex-wrap gap-4">
-                        {[
-                          { val: '#ffffff', label: 'Beyaz' },
-                          { val: '#f8fafc', label: 'Buz' },
-                          { val: '#f1f5f9', label: 'Gümüş' },
-                          { val: '#fff7ed', label: 'Krem' }
-                        ].map(item => (
-                          <button 
-                            key={item.val} 
-                            onClick={() => setCardBgColor(item.val)} 
-                            className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs ${cardBgColor === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
-                          >
-                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: item.val }} />
-                            {item.label}
+                        {['#ffffff', '#f8fafc', '#f1f5f9', '#fff7ed'].map(c => (
+                          <button key={c} onClick={() => setCardBgColor(c)} className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs ${cardBgColor === c ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}>
+                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: c }} /> {c === '#ffffff' ? 'Beyaz' : c === '#f8fafc' ? 'Buz' : c === '#f1f5f9' ? 'Gümüş' : 'Krem'}
                           </button>
                         ))}
                       </div>
                     </div>
-
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Derinlik (Gölge)</label>
                       <div className="flex flex-wrap gap-3">
-                        {[
-                          { val: 'shadow-none', label: 'Düz' },
-                          { val: 'shadow-sm', label: 'Hafif' },
-                          { val: 'shadow-md', label: 'Orta' },
-                          { val: 'shadow-xl', label: 'Yüksek' }
-                        ].map(item => (
-                          <button 
-                            key={item.val} 
-                            onClick={() => setCardShadow(item.val)} 
-                            className={`flex-1 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs text-center ${cardShadow === item.val ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}
-                          >
-                            {item.label}
-                          </button>
+                        {['shadow-none', 'shadow-sm', 'shadow-md', 'shadow-xl'].map(s => (
+                          <button key={s} onClick={() => setCardShadow(s)} className={`flex-1 px-4 py-3 rounded-2xl border-2 transition-all font-bold text-xs text-center ${cardShadow === s ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 bg-slate-50 text-slate-600'}`}>{s === 'shadow-none' ? 'Düz' : s === 'shadow-sm' ? 'Hafif' : s === 'shadow-md' ? 'Orta' : 'Yüksek'}</button>
                         ))}
                       </div>
                     </div>
                   </div>
-
-                  {/* Yeni Renk Ayarları */}
                   <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label><input type="color" value={cardPriceColor} onChange={e => setCardPriceColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ürün İsim Rengi</label><input type="color" value={cardTitleColor} onChange={e => setCardTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama Rengi</label><input type="color" value={cardDescColor} onChange={e => setCardDescColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt İkon Rengi</label><input type="color" value={cardInfoIconColor} onChange={e => setCardInfoIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                    <div className="col-span-2 space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt Bilgi Yazı Rengi (Dk/Kcal)</label><input type="color" value={cardInfoTextColor} onChange={e => setCardInfoTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ürün Detay (Modal) Ayarları */}
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 md:col-span-2">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                    <Maximize2 className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-800">Ürün Detay (Modal) Sayfası Ayarları</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Bölüm 1: Genel ve Başlıklar */}
+                  <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label>
-                      <input type="color" value={cardPriceColor} onChange={e => setCardPriceColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detay Arka Plan</label>
+                      <input type="color" value={modalBgColor} onChange={e => setModalBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ürün İsim Rengi</label>
-                      <input type="color" value={cardTitleColor} onChange={e => setCardTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ürün Adı Rengi</label>
+                      <input type="color" value={modalTitleColor} onChange={e => setModalTitleColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label>
+                      <input type="color" value={modalPriceColor} onChange={e => setModalPriceColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama Rengi</label>
-                      <input type="color" value={cardDescColor} onChange={e => setCardDescColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                      <input type="color" value={modalDescColor} onChange={e => setModalDescColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                  </div>
+
+                  {/* Bölüm 2: Kategori ve Bilgi Satırı */}
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kat. Yazı</label>
+                        <input type="color" value={modalCatTextColor} onChange={e => setModalCatTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kat. Buton</label>
+                        <input type="color" value={modalCatBgColor} onChange={e => setModalCatBgColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt İkon Rengi</label>
-                      <input type="color" value={cardInfoIconColor} onChange={e => setCardInfoIconColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Birim Fiyat Başlık</label>
+                      <input type="color" value={modalUnitPriceTitleColor} onChange={e => setModalUnitPriceTitleColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
                     </div>
-                    <div className="col-span-2 space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt Bilgi Yazı Rengi (Dk/Kcal)</label>
-                      <input type="color" value={cardInfoTextColor} onChange={e => setCardInfoTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hazır. İkon</label>
+                        <input type="color" value={modalPrepIconColor} onChange={e => setModalPrepIconColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Süre Yazı</label>
+                        <input type="color" value={modalPrepTextColor} onChange={e => setModalPrepTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kalori İkon</label>
+                        <input type="color" value={modalCalIconColor} onChange={e => setModalCalIconColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kalori Yazı</label>
+                        <input type="color" value={modalCalTextColor} onChange={e => setModalCalTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bölüm 3: İçindekiler ve Alerjen Kutusu */}
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçindekiler Başlık</label>
+                      <input type="color" value={modalIngTitleColor} onChange={e => setModalIngTitleColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçerik Etik. Arka</label>
+                        <input type="color" value={modalIngTagBgColor} onChange={e => setModalIngTagBgColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İçerik Etik. Yazı</label>
+                        <input type="color" value={modalIngTagTextColor} onChange={e => setModalIngTagTextColor(e.target.value)} className="w-full h-10 rounded-xl cursor-pointer border-none bg-transparent" />
+                      </div>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Alerjen Kutusu</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="color" value={modalAllergenBgColor} onChange={e => setModalAllergenBgColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
+                        <input type="color" value={modalAllergenBorderColor} onChange={e => setModalAllergenBorderColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
+                        <input type="color" value={modalAllergenTitleColor} onChange={e => setModalAllergenTitleColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
+                        <input type="color" value={modalAllergenDescColor} onChange={e => setModalAllergenDescColor(e.target.value)} className="w-full h-8 rounded-lg cursor-pointer" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <select value={modalAllergenBorderWidth} onChange={e => setModalAllergenBorderWidth(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1">
+                          <option value="0px">Sınır Yok</option><option value="1px">İnce</option><option value="2px">Orta</option>
+                        </select>
+                        <select value={modalAllergenShadow} onChange={e => setModalAllergenShadow(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1">
+                          <option value="shadow-none">Gölge Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -597,19 +726,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kenarlık Kalınlığı</label>
                     <select value={searchBorderWidth} onChange={e => setSearchBorderWidth(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="0px">Yok</option>
-                      <option value="1px">İnce (1px)</option>
-                      <option value="2px">Orta (2px)</option>
-                      <option value="3px">Kalın (3px)</option>
+                      <option value="0px">Yok</option><option value="1px">İnce (1px)</option><option value="2px">Orta (2px)</option><option value="3px">Kalın (3px)</option>
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gölge</label>
                     <select value={searchShadow} onChange={e => setSearchShadow(e.target.value)} className="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs appearance-none">
-                      <option value="shadow-none">Yok</option>
-                      <option value="shadow-sm">Hafif</option>
-                      <option value="shadow-md">Belirgin</option>
-                      <option value="shadow-lg">Güçlü</option>
+                      <option value="shadow-none">Yok</option><option value="shadow-sm">Hafif</option><option value="shadow-md">Belirgin</option><option value="shadow-lg">Güçlü</option>
                     </select>
                   </div>
                 </div>
@@ -623,37 +746,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   </div>
                   <h3 className="font-black text-slate-800">Vurgu Rengi</h3>
                 </div>
-
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vurgu Rengi (Accent)</label>
                   <div className="grid grid-cols-4 gap-3">
                     {['#0f172a', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed', '#000000', '#4b5563'].map(c => (
-                      <button 
-                        key={c} 
-                        onClick={() => setPrimaryColor(c)} 
-                        className={`aspect-square rounded-2xl border-4 transition-all hover:scale-105 active:scale-95 ${primaryColor === c ? 'border-slate-900' : 'border-white shadow-sm'}`} 
-                        style={{ backgroundColor: c }} 
-                      />
+                      <button key={c} onClick={() => setPrimaryColor(c)} className={`aspect-square rounded-2xl border-4 transition-all hover:scale-105 active:scale-95 ${primaryColor === c ? 'border-slate-900' : 'border-white shadow-sm'}`} style={{ backgroundColor: c }} />
                     ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Sabit Alt Çubuk (Kaydet) */}
+            {/* Sabit Alt Çubuk */}
             <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
               <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
                 <div className="hidden md:block pl-4">
                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Bekleyen Değişiklikler</p>
                   <p className="text-[10px] font-bold text-slate-500">Tasarımı yayına almak için kaydet butonuna basın.</p>
                 </div>
-                <button 
-                  onClick={saveDesignSettings} 
-                  disabled={saveLoading} 
-                  className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
-                >
-                  {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} 
-                  Değişiklikleri Kaydet
+                <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
+                  {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Değişiklikleri Kaydet
                 </button>
               </div>
             </div>
@@ -662,15 +774,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
         {activeTab === 'qr' && (
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center max-w-lg mx-auto animate-fade-in">
-            <div className="w-64 h-64 bg-slate-50 p-4 rounded-3xl border flex items-center justify-center mb-8">
-              <QRCodeSVG value={getMenuUrl()} size={220} fgColor={qrColor} />
-            </div>
+            <div className="w-64 h-64 bg-slate-50 p-4 rounded-3xl border flex items-center justify-center mb-8"><QRCodeSVG value={getMenuUrl()} size={220} fgColor={qrColor} /></div>
             <div className="w-full space-y-4">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center block">QR Renk</label>
                <div className="flex justify-center gap-3">
-                 {['#0f172a', '#2563eb', '#059669', '#dc2626'].map(c => (
-                   <button key={c} onClick={() => setQrColor(c)} className={`w-10 h-10 rounded-full border-2 ${qrColor === c ? 'border-slate-900 scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />
-                 ))}
+                 {['#0f172a', '#2563eb', '#059669', '#dc2626'].map(c => (<button key={c} onClick={() => setQrColor(c)} className={`w-10 h-10 rounded-full border-2 ${qrColor === c ? 'border-slate-900 scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />))}
                </div>
                <button onClick={saveDesignSettings} className="w-full mt-6 bg-slate-900 text-white py-4 rounded-xl font-bold">QR Kaydet</button>
             </div>
@@ -680,36 +788,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         {activeTab === 'settings' && (
           <div className="max-w-lg mx-auto space-y-8 animate-fade-in">
             <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-               <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                 <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
-                    <CheckCircle className="text-emerald-500 w-6 h-6" />
-                 </div>
-                 <div>
-                   <h3 className="font-black text-slate-900">Hesap Durumu</h3>
-                   <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Premium Plan Aktif</p>
-                 </div>
-               </div>
+               <div className="flex items-center gap-4 border-b border-slate-50 pb-6"><div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center"><CheckCircle className="text-emerald-500 w-6 h-6" /></div><div><h3 className="font-black text-slate-900">Hesap Durumu</h3><p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Premium Plan Aktif</p></div></div>
                <div className="space-y-6">
-                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
-                   <div className="flex items-center gap-3">
-                     <CreditCard className="w-5 h-5 text-slate-400" />
-                     <span className="text-sm font-bold text-slate-600">Aktif Paket</span>
-                   </div>
-                   <span className="text-sm font-black text-slate-900">Qresta PLUS+</span>
-                 </div>
-                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
-                   <div className="flex items-center gap-3">
-                     <Database className="w-5 h-5 text-slate-400" />
-                     <span className="text-sm font-bold text-slate-600">Bitiş Tarihi</span>
-                   </div>
-                   <span className="text-sm font-black text-slate-900">31.12.2025</span>
-                 </div>
+                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl"><div className="flex items-center gap-3"><CreditCard className="w-5 h-5 text-slate-400" /><span className="text-sm font-bold text-slate-600">Aktif Paket</span></div><span className="text-sm font-black text-slate-900">Qresta PLUS+</span></div>
+                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl"><div className="flex items-center gap-3"><Database className="w-5 h-5 text-slate-400" /><span className="text-sm font-bold text-slate-600">Bitiş Tarihi</span></div><span className="text-sm font-black text-slate-900">31.12.2025</span></div>
                </div>
-               <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                 <p className="text-xs font-medium text-blue-700 leading-relaxed">
-                   Premium üye olduğunuz için tüm özelliklere sınırsız erişiminiz bulunmaktadır.
-                 </p>
-               </div>
+               <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100"><p className="text-xs font-medium text-blue-700 leading-relaxed">Premium üye olduğunuz için tüm özelliklere sınırsız erişiminiz bulunmaktadır.</p></div>
             </div>
           </div>
         )}
@@ -719,27 +803,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
           <div className="relative bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl p-8 md:p-12 animate-scale-in">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-black text-slate-900">{editingProduct?.id ? 'Ürünü Düzenle' : 'Yeni Ürün'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 bg-slate-50 rounded-full"><X className="w-6 h-6 text-slate-400" /></button>
-            </div>
+            <div className="flex items-center justify-between mb-8"><h3 className="text-2xl font-black text-slate-900">{editingProduct?.id ? 'Ürünü Düzenle' : 'Yeni Ürün'}</h3><button onClick={() => setIsModalOpen(false)} className="p-2 bg-slate-50 rounded-full"><X className="w-6 h-6 text-slate-400" /></button></div>
             <form onSubmit={handleSaveProduct} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Adı</label><input required value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat</label><input required type="number" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
-                  <select value={editingProduct?.category} onChange={e => setEditingProduct(p => ({...p!, category: e.target.value as CategoryType}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2">
-                    {Object.values(CategoryType).map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
+                <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Kategori</label><select value={editingProduct?.category} onChange={e => setEditingProduct(p => ({...p!, category: e.target.value as CategoryType}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2">{Object.values(CategoryType).map(c => <option key={c} value={c}>{c}</option>)}</select></div>
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Görsel</label><input value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
               </div>
               <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama</label><textarea rows={3} value={editingProduct?.description || ''} onChange={e => setEditingProduct(p => ({...p!, description: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
               <div className="flex items-center gap-3"><input type="checkbox" checked={editingProduct?.isPopular || false} onChange={e => setEditingProduct(p => ({...p!, isPopular: e.target.checked}))} id="pop" /><label htmlFor="pop" className="text-sm font-bold text-slate-700">Popüler</label></div>
-              <button type="submit" disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">
-                {saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} {editingProduct?.id ? 'Güncelle' : 'Ekle'}
-              </button>
+              <button type="submit" disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">{saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} {editingProduct?.id ? 'Güncelle' : 'Ekle'}</button>
             </form>
           </div>
         </div>
