@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, Wifi, Clock, MapPin, Phone, Instagram, Copy, Check, MessageCircle, CigaretteOff, Baby, ParkingCircle, Plus } from 'lucide-react';
+import { X, Wifi, Clock, MapPin, Phone, Instagram, Copy, Check, MessageCircle, CigaretteOff, Baby, ParkingCircle, Plus, Truck, CreditCard } from 'lucide-react';
 
 interface BusinessInfoModalProps {
   isOpen: boolean;
@@ -14,6 +14,9 @@ interface BusinessInfoModalProps {
     wifiPassword: string;
     instagramUsername: string;
     coverImageUrl: string;
+    paymentMethods: string;
+    serviceOptions: string;
+    workingHours: string;
     hasPlayground: boolean;
     hasChildArea: boolean;
     isNoSmoking: boolean;
@@ -114,7 +117,41 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
 
-            {/* Grup 2: Sosyal Medya & WiFi */}
+            {/* Grup 2: Hizmet & Çalışma Detayları */}
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Hizmet & Çalışma</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <Clock className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Çalışma Saatleri</p>
+                    <p className="text-xs font-bold text-slate-800">{profile?.workingHours || 'Her gün: 09:00 - 22:00'}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <CreditCard className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ödeme Türleri</p>
+                    <p className="text-xs font-bold text-slate-800">{profile?.paymentMethods || 'Nakit, Kredi Kartı'}</p>
+                  </div>
+                </div>
+                <div className="md:col-span-2 bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <Truck className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servis Seçenekleri</p>
+                    <p className="text-xs font-bold text-slate-800">{profile?.serviceOptions || 'Masaya Servis, Gel-Al'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Grup 3: Sosyal Medya & WiFi */}
             <div className="space-y-4">
               <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Sosyal Medya & WiFi</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -131,8 +168,8 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose, 
                 )}
                 <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center shrink-0">
-                      <Wifi className="w-6 h-6 text-indigo-600" />
+                    <div className="w-12 h-12 bg-slate-200 rounded-2xl flex items-center justify-center shrink-0">
+                      <Wifi className="w-6 h-6 text-slate-600" />
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">WiFi Şifresi</p>
@@ -147,7 +184,7 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
 
-            {/* Grup 3: İşletme Özellikleri */}
+            {/* Grup 4: İşletme Özellikleri */}
             <div className="space-y-4">
               <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">İşletme Özellikleri</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

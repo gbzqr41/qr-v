@@ -6,7 +6,7 @@ import {
   TrendingUp, Package, Type as TypeIcon, CreditCard, CheckCircle,
   Type, MousePointer2, Box, Layout, Image as ImageIcon,
   Layers, Minus, Maximize2, Store, Phone, MapPin, Instagram, Wifi, Image,
-  MessageCircle, CigaretteOff, Baby, ParkingCircle, Info
+  MessageCircle, CigaretteOff, Baby, ParkingCircle, Info, Clock, Truck, CreditCard as CardIcon
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase.ts';
@@ -45,6 +45,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [instagramUsername, setInstagramUsername] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200');
   
+  // Hizmet & Çalışma Ayarları
+  const [paymentMethods, setPaymentMethods] = useState('Nakit, Kredi Kartı');
+  const [serviceOptions, setServiceOptions] = useState('Masaya Servis, Gel-Al');
+  const [workingHours, setWorkingHours] = useState('Her gün: 09:00 - 22:00');
+
   // Tesis Özellikleri
   const [hasPlayground, setHasPlayground] = useState(false);
   const [hasChildArea, setHasChildArea] = useState(false);
@@ -136,6 +141,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         setInstagramUsername(settingsData.instagram_username || '');
         setCoverImageUrl(settingsData.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200');
         
+        // Hizmet & Çalışma
+        setPaymentMethods(settingsData.payment_methods || 'Nakit, Kredi Kartı');
+        setServiceOptions(settingsData.service_options || 'Masaya Servis, Gel-Al');
+        setWorkingHours(settingsData.working_hours || 'Her gün: 09:00 - 22:00');
+
         // Tesis Özellikleri
         setHasPlayground(settingsData.has_playground || false);
         setHasChildArea(settingsData.has_child_area || false);
@@ -195,7 +205,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
         setCatDividerColor(settingsData.cat_divider_color || '#e2e8f0');
         setCatDividerThickness(settingsData.cat_divider_thickness || '1px');
-        // Fix duplicate setter call
         setCatDividerShadow(settingsData.cat_divider_shadow || 'shadow-none');
         setCatTitleColor(settingsData.cat_title_color || '#0f172a');
       }
@@ -279,6 +288,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         wifi_password: wifiPassword,
         instagram_username: instagramUsername,
         cover_image_url: coverImageUrl,
+        payment_methods: paymentMethods,
+        service_options: serviceOptions,
+        working_hours: workingHours,
         has_playground: hasPlayground,
         has_child_area: hasChildArea,
         is_no_smoking: isNoSmoking,
@@ -329,7 +341,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         cat_shadow: catShadow,
         cat_divider_color: catDividerColor,
         cat_divider_thickness: catDividerThickness,
-        // Fix: Removed duplicate property cat_divider_shadow
         cat_divider_shadow: catDividerShadow,
         cat_title_color: catTitleColor
       };
@@ -895,7 +906,59 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Grup 2: Sosyal Medya & Diğer */}
+              {/* Grup 2: Hizmet & Ödeme Bilgileri */}
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
+                    <Info className="text-indigo-500 w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-slate-900">Hizmet & Ödeme Bilgileri</h3>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Çalışma Şartları</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ödeme Türleri</label>
+                    <div className="relative">
+                      <CardIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={paymentMethods} 
+                        onChange={e => setPaymentMethods(e.target.value)} 
+                        placeholder="Nakit, Kredi Kartı, Sodexo..."
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Servis Türleri</label>
+                    <div className="relative">
+                      <Truck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={serviceOptions} 
+                        onChange={e => setServiceOptions(e.target.value)} 
+                        placeholder="Masaya Servis, Gel-Al, Paket Servis..."
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Çalışma Saatleri</label>
+                    <div className="relative">
+                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                      <input 
+                        value={workingHours} 
+                        onChange={e => setWorkingHours(e.target.value)} 
+                        placeholder="Pzt-Cmt: 09:00 - 22:00, Paz: Kapalı"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2" 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grup 3: Sosyal Medya & Diğer */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
                 <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
                   <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center">
@@ -936,7 +999,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Grup 3: İşletme Özellikleri */}
+              {/* Grup 4: İşletme Özellikleri */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
                 <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
                   <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
