@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Star, Send, User, Phone, CheckCircle2 } from 'lucide-react';
+import { X, Star, Send, User, CheckCircle2, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase.ts';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -13,13 +14,16 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, primaryC
   const [hovers, setHovers] = useState({ food: 0, service: 0, ambiance: 0 });
   const [comment, setComment] = useState('');
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       setIsSubmitted(false);
+      setRatings({ food: 0, service: 0, ambiance: 0 });
+      setComment('');
+      setName('');
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -58,8 +62,25 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, primaryC
 
   const canSubmit = ratings.food > 0 && ratings.service > 0 && ratings.ambiance > 0;
 
-  const handleSubmit = () => {
-    setIsSubmitted(true);
+  const handleSubmit = async () => {
+    if (!canSubmit || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from('feedbacks').insert([{
+        food_rating: ratings.food,
+        service_rating: ratings.service,
+        ambiance_rating: ratings.ambiance,
+        name: name || 'Anonim',
+        comment: comment
+      }]);
+      if (error) throw error;
+      setIsSubmitted(true);
+    } catch (err) {
+      alert('Geri bildirim gönderilirken bir hata oluştu.');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,7 +132,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, primaryC
             <div className="w-full space-y-10 mb-12">
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center">
-                  * <span className="inline-block w-3"></span> Ad Soyad (Opsiyonel)
+                  Ad Soyad (Opsiyonel)
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5" />
@@ -139,15 +160,15 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, primaryC
 
             <button 
               onClick={handleSubmit}
-              disabled={!canSubmit}
+              disabled={!canSubmit || isSubmitting}
               className={`w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl
-                ${canSubmit 
+                ${canSubmit && !isSubmitting
                   ? 'text-white shadow-slate-200 hover:opacity-90' 
                   : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'}
               `}
-              style={canSubmit ? { backgroundColor: primaryColor } : {}}
+              style={canSubmit && !isSubmitting ? { backgroundColor: primaryColor } : {}}
             >
-              <Send className="w-5 h-5" /> Gönder
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />} Gönder
             </button>
           </>
         )}

@@ -7,7 +7,7 @@ import {
   Type, MousePointer2, Box, Layout, Image as ImageIcon,
   Layers, Minus, Maximize2, Store, Phone, MapPin, Instagram, Wifi, Image,
   MessageCircle, CigaretteOff, Baby, ParkingCircle, Info, Clock, Truck, CreditCard as CardIcon,
-  Music, Sun, Dog, Key, Wine, Coffee, HelpCircle
+  Music, Sun, Dog, Key, Wine, Coffee, HelpCircle, Star, MessageSquare
 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -25,11 +25,22 @@ interface BusinessFeature {
   active: boolean;
 }
 
-type TabType = 'dashboard' | 'menu' | 'qr' | 'design' | 'settings';
+interface Feedback {
+  id: string;
+  created_at: string;
+  food_rating: number;
+  service_rating: number;
+  ambiance_rating: number;
+  name: string;
+  comment: string;
+}
+
+type TabType = 'dashboard' | 'menu' | 'qr' | 'design' | 'settings' | 'evaluations';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [menuItems, setMenuItems] = useState<Product[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -224,6 +235,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         calories: item.calories,
         ingredients: item.ingredients || []
       })));
+
+      const { data: feedbackData } = await supabase.from('feedbacks').select('*').order('created_at', { ascending: false });
+      setFeedbacks(feedbackData || []);
+
     } catch (err) {
       console.error('Veri çekme hatası:', err);
     } finally {
@@ -269,6 +284,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       fetchData();
     } catch (err) {
       alert('Silinemedi.');
+    }
+  };
+
+  const handleDeleteFeedback = async (id: string) => {
+    if (!confirm('Bu değerlendirmeyi silmek istediğinize emin misiniz?')) return;
+    try {
+      await supabase.from('feedbacks').delete().eq('id', id);
+      setFeedbacks(prev => prev.filter(f => f.id !== id));
+    } catch (err) {
+      alert('Hata: Silinemedi.');
     }
   };
 
@@ -380,11 +405,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const getMenuUrl = () => window.location.href.split('#')[0];
   const filteredItems = menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.category.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // Lucide İkonunu render eden yardımcı bileşen
   const IconRenderer = ({ name, className }: { name: string, className?: string }) => {
     const IconComponent = (Icons as any)[name] || Icons.HelpCircle;
     return <IconComponent className={className} />;
   };
+
+  const Stars = ({ rating }: { rating: number }) => (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map(i => (
+        <Star key={i} className={`w-3 h-3 ${i <= rating ? 'text-amber-500 fill-amber-500' : 'text-slate-200'}`} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
@@ -396,6 +428,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         <nav className="flex-1 p-6 space-y-2">
           <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><LayoutDashboard className="w-4 h-4" /> Panel</button>
           <button onClick={() => setActiveTab('menu')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'menu' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Utensils className="w-4 h-4" /> Ürünler</button>
+          <button onClick={() => setActiveTab('evaluations')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'evaluations' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><MessageSquare className="w-4 h-4" /> Değerlendirmeler</button>
           <button onClick={() => setActiveTab('design')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'design' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Palette className="w-4 h-4" /> Tasarım</button>
           <button onClick={() => setActiveTab('qr')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'qr' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><QrCode className="w-4 h-4" /> QR Kod</button>
           <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings' ? 'bg-white/10' : 'text-white/50 hover:bg-white/5'}`}><Settings className="w-4 h-4" /> Ayarlar</button>
@@ -416,14 +449,54 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Popüler Ürünler</p><h4 className="text-2xl font-black text-slate-900">{menuItems.filter(i => i.isPopular).length}</h4></div>
                 </div>
                 <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-6">
-                   <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center"><TypeIcon className="text-emerald-600" /></div>
-                   <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Kategoriler</p><h4 className="text-2xl font-black text-slate-900">{Object.keys(CategoryType).length}</h4></div>
+                   <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center"><MessageSquare className="text-emerald-600" /></div>
+                   <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Yeni Yorumlar</p><h4 className="text-2xl font-black text-slate-900">{feedbacks.length}</h4></div>
                 </div>
              </div>
           </div>
         )}
 
-        {/* ... Ürünler, Tasarım, QR sekmeleri aynı kalıyor ... */}
+        {activeTab === 'evaluations' && (
+          <div className="space-y-6 animate-fade-in">
+            <h2 className="text-3xl font-black text-slate-900">Müşteri Değerlendirmeleri</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {feedbacks.length === 0 ? (
+                <div className="col-span-full py-20 text-center bg-white rounded-[2rem] border border-slate-100">
+                  <p className="text-slate-400 font-bold">Henüz bir değerlendirme yapılmamış.</p>
+                </div>
+              ) : (
+                feedbacks.map(fb => (
+                  <div key={fb.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4 flex flex-col relative group">
+                    <button 
+                      onClick={() => handleDeleteFeedback(fb.id)}
+                      className="absolute top-6 right-6 p-2 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                        {fb.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900">{fb.name}</h4>
+                        <p className="text-[10px] text-slate-400 font-bold">{new Date(fb.created_at).toLocaleDateString('tr-TR')}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 py-3 border-y border-slate-50">
+                      <div><p className="text-[8px] font-black text-slate-400 uppercase mb-1">Lezzet</p><Stars rating={fb.food_rating} /></div>
+                      <div><p className="text-[8px] font-black text-slate-400 uppercase mb-1">Servis</p><Stars rating={fb.service_rating} /></div>
+                      <div><p className="text-[8px] font-black text-slate-400 uppercase mb-1">Ortam</p><Stars rating={fb.ambiance_rating} /></div>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed flex-1 italic">
+                      {fb.comment || 'Yorum bırakılmadı.'}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'menu' && (
           <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -486,7 +559,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   </div>
                 </div>
               </div>
-              {/* ... Diğer Tasarım Kartları ... */}
+              
               <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
                   <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
@@ -499,7 +572,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Metin Rengi</label><input type="color" value={headerTextColor} onChange={e => setHeaderTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
                 </div>
               </div>
-              {/* ... Kart Stili, Detay Sayfası vb. ... */}
             </div>
 
             <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
@@ -527,7 +599,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </header>
 
             <div className="space-y-6">
-              {/* Grup 1: İletişim & Konum */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
                 <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
                   <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
@@ -547,7 +618,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Grup 2: Hizmet & Ödeme */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
                 <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
                   <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center"><Info className="text-indigo-500 w-6 h-6" /></div>
@@ -560,7 +630,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Grup 3: İşletme Özellikleri (Dinamik Yapı) */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
                 <div className="flex items-center justify-between border-b border-slate-50 pb-6">
                   <div className="flex items-center gap-4">
@@ -626,7 +695,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         )}
       </main>
-      {/* ... Modal ... */}
+      
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
