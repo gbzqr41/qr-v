@@ -38,10 +38,15 @@ const App: React.FC = () => {
   const [businessProfile, setBusinessProfile] = useState({
     description: 'Modern Gastronomi Deneyimi',
     phone: '',
+    whatsapp: '',
     address: '',
     wifiPassword: 'resital2024',
     instagramUsername: '',
-    coverImageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200'
+    coverImageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',
+    hasPlayground: false,
+    hasChildArea: false,
+    isNoSmoking: true,
+    hasParking: false
   });
 
   // Ürün Kart Detay Ayarları State
@@ -145,10 +150,15 @@ const App: React.FC = () => {
           setBusinessProfile({
             description: settingsData.description || 'Modern Gastronomi Deneyimi',
             phone: settingsData.phone || '',
+            whatsapp: settingsData.whatsapp || '',
             address: settingsData.address || '',
             wifiPassword: settingsData.wifi_password || 'resital2024',
             instagramUsername: settingsData.instagram_username || '',
-            coverImageUrl: settingsData.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200'
+            coverImageUrl: settingsData.cover_image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',
+            hasPlayground: settingsData.has_playground || false,
+            hasChildArea: settingsData.has_child_area || false,
+            isNoSmoking: settingsData.is_no_smoking ?? true,
+            hasParking: settingsData.has_parking || false
           });
           
           setCardSettings({

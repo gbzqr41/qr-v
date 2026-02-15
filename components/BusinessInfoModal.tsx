@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, Wifi, Clock, MapPin, Phone, Instagram, Copy, Check } from 'lucide-react';
+import { X, Wifi, Clock, MapPin, Phone, Instagram, Copy, Check, MessageCircle, CigaretteOff, Baby, ParkingCircle, Plus } from 'lucide-react';
 
 interface BusinessInfoModalProps {
   isOpen: boolean;
@@ -9,10 +9,15 @@ interface BusinessInfoModalProps {
   profile?: {
     description: string;
     phone: string;
+    whatsapp: string;
     address: string;
     wifiPassword: string;
     instagramUsername: string;
     coverImageUrl: string;
+    hasPlayground: boolean;
+    hasChildArea: boolean;
+    isNoSmoking: boolean;
+    hasParking: boolean;
   };
 }
 
@@ -68,62 +73,110 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({ isOpen, onClose, 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {/* WiFi Bilgisi */}
-            <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center shrink-0">
-                  <Wifi className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">WIFI BİLGİLERİ</p>
-                  <p className="text-xs font-bold text-slate-800">Şifre: {profile?.wifiPassword || 'resital2024'}</p>
-                </div>
+          <div className="space-y-10">
+            {/* Grup 1: İletişim & Konum */}
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">İletişim & Konum</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {profile?.phone && (
+                  <a href={`tel:${profile.phone}`} className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4 hover:bg-slate-100 transition-colors">
+                    <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <Phone className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Telefon</p>
+                      <p className="text-xs font-bold text-slate-800">{profile.phone}</p>
+                    </div>
+                  </a>
+                )}
+                {profile?.whatsapp && (
+                  <a href={`https://wa.me/${profile.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4 hover:bg-slate-100 transition-colors">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <MessageCircle className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</p>
+                      <p className="text-xs font-bold text-slate-800">{profile.whatsapp}</p>
+                    </div>
+                  </a>
+                )}
+                {profile?.address && (
+                  <div className="md:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-start gap-4">
+                    <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <MapPin className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Adres</p>
+                      <p className="text-sm font-bold text-slate-800 leading-relaxed">{profile.address}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <button onClick={handleCopyWifi} className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2">
-                {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                {copied ? 'Kopyalandı' : 'Kopyala'}
-              </button>
             </div>
 
-            {/* Sosyal Medya ve İletişim */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {profile?.phone && (
-                <a href={`tel:${profile.phone}`} className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4 hover:bg-slate-100 transition-colors">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
-                    <Phone className="w-6 h-6 text-emerald-600" />
+            {/* Grup 2: Sosyal Medya & WiFi */}
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Sosyal Medya & WiFi</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {profile?.instagramUsername && (
+                  <a href={`https://instagram.com/${profile.instagramUsername}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4 hover:bg-slate-100 transition-colors">
+                    <div className="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <Instagram className="w-6 h-6 text-rose-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Instagram</p>
+                      <p className="text-xs font-bold text-slate-800">@{profile.instagramUsername}</p>
+                    </div>
+                  </a>
+                )}
+                <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <Wifi className="w-6 h-6 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">WiFi Şifresi</p>
+                      <p className="text-xs font-bold text-slate-800">{profile?.wifiPassword || 'resital2024'}</p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TELEFON</p>
-                    <p className="text-xs font-bold text-slate-800">{profile.phone}</p>
-                  </div>
-                </a>
-              )}
-              {profile?.instagramUsername && (
-                <a href={`https://instagram.com/${profile.instagramUsername}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50 p-5 rounded-3xl border border-slate-100 flex items-center gap-4 hover:bg-slate-100 transition-colors">
-                  <div className="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center shrink-0">
-                    <Instagram className="w-6 h-6 text-rose-600" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">INSTAGRAM</p>
-                    <p className="text-xs font-bold text-slate-800">@{profile.instagramUsername}</p>
-                  </div>
-                </a>
-              )}
-            </div>
-
-            {/* Adres */}
-            {profile?.address && (
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-start gap-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center shrink-0">
-                  <MapPin className="w-6 h-6 text-orange-600" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ADRES</p>
-                  <p className="text-sm font-bold text-slate-800 leading-relaxed">{profile.address}</p>
+                  <button onClick={handleCopyWifi} className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 active:scale-95 transition-transform">
+                    {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                    {copied ? 'Kopyalandı' : 'Kopyala'}
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+
+            {/* Grup 3: İşletme Özellikleri */}
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">İşletme Özellikleri</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {profile?.hasPlayground && (
+                  <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col items-center gap-2 text-blue-600">
+                    <Baby className="w-6 h-6" />
+                    <span className="text-[9px] font-black uppercase tracking-tight">Oyun Parkı</span>
+                  </div>
+                )}
+                {profile?.hasChildArea && (
+                  <div className="bg-purple-50/50 p-4 rounded-2xl border border-purple-100 flex flex-col items-center gap-2 text-purple-600">
+                    <Plus className="w-6 h-6" />
+                    <span className="text-[9px] font-black uppercase tracking-tight">Çocuk Alanı</span>
+                  </div>
+                )}
+                {profile?.isNoSmoking && (
+                  <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100 flex flex-col items-center gap-2 text-rose-600">
+                    <CigaretteOff className="w-6 h-6" />
+                    <span className="text-[9px] font-black uppercase tracking-tight">Sigara İçilmez</span>
+                  </div>
+                )}
+                {profile?.hasParking && (
+                  <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col items-center gap-2 text-amber-600">
+                    <ParkingCircle className="w-6 h-6" />
+                    <span className="text-[9px] font-black uppercase tracking-tight">Otopark</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
