@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Settings, LogOut, Utensils, Search, Plus, 
@@ -376,6 +375,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         card_price_color: cardPriceColor,
         card_title_color: cardTitleColor,
         card_desc_color: cardDescColor,
+        // Fix: Changed cardInfo_icon_color to cardInfoIconColor and cardInfo_text_color to cardInfoTextColor
         card_info_icon_color: cardInfoIconColor,
         card_info_text_color: cardInfoTextColor,
         modal_bg_color: modalBgColor,
@@ -413,7 +413,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         cat_bg_color: catBgColor,
         cat_text_color: catTextColor,
         cat_active_bg_color: catActiveBgColor,
-        cat_active_textColor: catActiveTextColor,
+        cat_active_text_color: catActiveTextColor,
         cat_border_color: catBorderColor,
         cat_border_width: catBorderWidth,
         cat_shadow: catShadow,
@@ -528,7 +528,100 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* ... Ürünler, Tasarım, QR sekmeleri aynı kalıyor ... */}
+        {activeTab === 'menu' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h2 className="text-3xl font-black text-slate-900">Menü Yönetimi</h2>
+              <button onClick={() => { setEditingProduct({ category: CategoryType.STARTERS, ingredients: [] }); setIsModalOpen(true); }} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2"><Plus className="w-5 h-5" /> Yeni Ürün Ekle</button>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="text" placeholder="Ürün ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-slate-900/5 shadow-sm" />
+            </div>
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 border-b border-slate-100"><tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest"><th className="px-6 py-4">Ürün</th><th className="px-6 py-4">Kategori</th><th className="px-6 py-4">Fiyat</th><th className="px-6 py-4">İşlemler</th></tr></thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filteredItems.map(item => (
+                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 flex items-center gap-3"><img src={item.image} className="w-10 h-10 rounded-lg object-cover" /><span className="font-bold text-slate-700">{item.name}</span></td>
+                      <td className="px-6 py-4"><span className="text-xs font-bold px-3 py-1 bg-slate-100 rounded-full text-slate-600">{item.category}</span></td>
+                      <td className="px-6 py-4 font-black text-slate-900">{item.price} TL</td>
+                      <td className="px-6 py-4 flex gap-2">
+                        <button onClick={() => { setEditingProduct(item); setIsModalOpen(true); }} className="p-2 text-slate-400 hover:text-blue-500 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDeleteProduct(item.id)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'design' && (
+          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-32">
+            <header className="flex flex-col gap-2 mb-8">
+              <h2 className="text-3xl font-black text-slate-900">Görsel Kimlik</h2>
+              <p className="text-slate-500 text-sm font-medium">Restoranınızın dijital dünyadaki görünümünü buradan özelleştirin.</p>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600"><Type className="w-5 h-5" /></div>
+                  <h3 className="font-black text-slate-800">Marka & Yazı Tipi</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label><input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} placeholder="Örn: Resital Lounge" className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 transition-all font-bold" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Yazı Tipi Ailesi</label><select value={fontFamily} onChange={e => setFontFamily(e.target.value)} className="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-slate-900/5 font-bold appearance-none cursor-pointer"><option value="Plus Jakarta Sans">Plus Jakarta Sans (Modern)</option><option value="Inter">Inter (Temiz)</option><option value="Montserrat">Montserrat (Klasik)</option><option value="Poppins">Poppins (Yumuşak)</option></select></div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600"><Layout className="w-5 h-5" /></div>
+                  <h3 className="font-black text-slate-800">Üst Menü (Header)</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan</label><input type="color" value={headerBgColor} onChange={e => setHeaderBgColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Metin Rengi</label><input type="color" value={headerTextColor} onChange={e => setHeaderTextColor(e.target.value)} className="w-full h-12 rounded-xl cursor-pointer border-none bg-transparent" /></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 border-b border-slate-50 pb-4"><div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600"><ImageIcon className="w-5 h-5" /></div><h3 className="font-black text-slate-800">Ürün Kartı Renkleri</h3></div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat Rengi</label><input type="color" value={cardPriceColor} onChange={e => setCardPriceColor(e.target.value)} className="w-full h-12 rounded-xl" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Başlık Rengi</label><input type="color" value={cardTitleColor} onChange={e => setCardTitleColor(e.target.value)} className="w-full h-12 rounded-xl" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama Rengi</label><input type="color" value={cardDescColor} onChange={e => setCardDescColor(e.target.value)} className="w-full h-12 rounded-xl" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kart Zemin</label><input type="color" value={cardBgColor} onChange={e => setCardBgColor(e.target.value)} className="w-full h-12 rounded-xl" /></div>
+              </div>
+            </div>
+
+            <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
+              <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
+                <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">{saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Değişiklikleri Kaydet</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'qr' && (
+          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center max-w-lg mx-auto animate-fade-in">
+            <h2 className="text-2xl font-black text-slate-900 mb-8 text-center">Menü QR Kodu</h2>
+            <div className="w-64 h-64 bg-slate-50 p-6 rounded-3xl border-4 border-slate-100 flex items-center justify-center mb-8"><QRCodeSVG value={getMenuUrl()} size={220} fgColor={qrColor} /></div>
+            <div className="w-full space-y-4">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">QR Kod Rengi</label>
+              <div className="flex gap-4 items-center">
+                <input type="color" value={qrColor} onChange={e => setQrColor(e.target.value)} className="w-16 h-16 rounded-2xl border-none cursor-pointer" />
+                <div className="flex-1 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-mono text-sm font-bold text-slate-600">{qrColor}</div>
+              </div>
+            </div>
+            <button onClick={saveDesignSettings} className="w-full mt-10 bg-slate-900 text-white py-5 rounded-2xl font-black shadow-lg">Değişiklikleri Kaydet</button>
+          </div>
+        )}
 
         {activeTab === 'settings' && (
           <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-32">
@@ -538,112 +631,44 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </header>
 
             <div className="space-y-6">
-              {/* Grup 0: Açılış Ekranı Ayarları */}
+              {/* Açılış Ekranı Ayarları */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
-                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
-                    <MonitorPlay className="text-indigo-500 w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-slate-900">Açılış Ekranı Ayarları</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">İlk Karşılama Sayfası</p>
-                  </div>
-                </div>
-
+                <div className="flex items-center gap-4 border-b border-slate-50 pb-6"><div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center"><MonitorPlay className="text-indigo-500 w-6 h-6" /></div><div><h3 className="font-black text-slate-900">Açılış Ekranı Ayarları</h3><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">İlk Karşılama Sayfası</p></div></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açılış Logosu (Resim)</label>
                       <div className="flex gap-4">
                         <div className="flex-1 space-y-2">
-                          <div className="relative">
-                            <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                            <input 
-                              value={welcomeLogo} 
-                              onChange={e => setWelcomeLogo(e.target.value)} 
-                              placeholder="Logo URL..."
-                              className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2 text-xs" 
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <label className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-3 rounded-xl cursor-pointer text-xs font-bold transition-colors flex items-center justify-center gap-2">
-                              <Upload className="w-4 h-4" /> Dosya Yükle
-                              <input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'welcomeLogo')} className="hidden" />
-                            </label>
-                          </div>
+                          <div className="relative"><LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" /><input value={welcomeLogo} onChange={e => setWelcomeLogo(e.target.value)} placeholder="Logo URL..." className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2 text-xs" /></div>
+                          <label className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-3 rounded-xl cursor-pointer text-xs font-bold transition-colors flex items-center justify-center gap-2"><Upload className="w-4 h-4" /> Dosya Yükle<input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'welcomeLogo')} className="hidden" /></label>
                         </div>
                         {welcomeLogo && <img src={welcomeLogo} className="w-20 h-20 rounded-2xl object-contain bg-slate-50 border" alt="Preview" />}
                       </div>
                     </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açılış Başlığı</label>
-                      <input 
-                        value={welcomeTitle} 
-                        onChange={e => setWelcomeTitle(e.target.value)} 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Açılış Alt Başlığı</label>
-                      <input 
-                        value={welcomeSubtitle} 
-                        onChange={e => setWelcomeSubtitle(e.target.value)} 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" 
-                      />
-                    </div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Başlık</label><input value={welcomeTitle} onChange={e => setWelcomeTitle(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alt Başlık</label><input value={welcomeSubtitle} onChange={e => setWelcomeSubtitle(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
                   </div>
-
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan Tipi</label>
                       <div className="flex gap-2">
-                        <button 
-                          onClick={() => setWelcomeBgType('image')}
-                          className={`flex-1 py-3 rounded-xl font-bold text-xs border-2 transition-all ${welcomeBgType === 'image' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
-                        >Resim</button>
-                        <button 
-                          onClick={() => setWelcomeBgType('video')}
-                          className={`flex-1 py-3 rounded-xl font-bold text-xs border-2 transition-all ${welcomeBgType === 'video' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
-                        >Video (URL)</button>
+                        <button onClick={() => setWelcomeBgType('image')} className={`flex-1 py-3 rounded-xl font-bold text-xs border-2 transition-all ${welcomeBgType === 'image' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>Resim</button>
+                        <button onClick={() => setWelcomeBgType('video')} className={`flex-1 py-3 rounded-xl font-bold text-xs border-2 transition-all ${welcomeBgType === 'video' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>Video (URL)</button>
                       </div>
                     </div>
-
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan URL (Yada Dosya)</label>
-                      <div className="relative">
-                        <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                        <input 
-                          value={welcomeBgUrl} 
-                          onChange={e => setWelcomeBgUrl(e.target.value)} 
-                          placeholder="Arka plan URL..."
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2 text-xs" 
-                        />
-                      </div>
-                      {welcomeBgType === 'image' && (
-                        <label className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-3 rounded-xl cursor-pointer text-xs font-bold transition-colors flex items-center justify-center gap-2">
-                          <Upload className="w-4 h-4" /> Resim Yükle
-                          <input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'welcomeBg')} className="hidden" />
-                        </label>
-                      )}
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arka Plan URL</label>
+                      <div className="relative"><LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" /><input value={welcomeBgUrl} onChange={e => setWelcomeBgUrl(e.target.value)} placeholder="Arka plan URL..." className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 pl-12 font-bold outline-none focus:ring-2 text-xs" /></div>
+                      {welcomeBgType === 'image' && <label className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-3 rounded-xl cursor-pointer text-xs font-bold transition-colors flex items-center justify-center gap-2"><Upload className="w-4 h-4" /> Resim Yükle<input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'welcomeBg')} className="hidden" /></label>}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Grup 1: İletişim & Konum */}
+              {/* İletişim & Konum */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
-                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
-                    <Store className="text-blue-500 w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-slate-900">İletişim & Konum</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Temel Bilgiler</p>
-                  </div>
-                </div>
-
+                <div className="flex items-center gap-4 border-b border-slate-50 pb-6"><div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center"><Store className="text-blue-500 w-6 h-6" /></div><div><h3 className="font-black text-slate-900">İletişim & Konum</h3><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Temel Bilgiler</p></div></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">İşletme Adı</label><input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
                   <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slogan</label><input value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
@@ -652,68 +677,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
 
+              {/* İşletme Özellikleri */}
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
-                <div className="flex items-center gap-4 border-b border-slate-50 pb-6">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center"><Info className="text-indigo-500 w-6 h-6" /></div>
-                  <div><h3 className="font-black text-slate-900">Hizmet & Ödeme Bilgileri</h3><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Çalışma Şartları</p></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ödeme Türleri</label><input value={paymentMethods} onChange={e => setPaymentMethods(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Servis Türleri</label><input value={serviceOptions} onChange={e => setServiceOptions(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
-                  <div className="md:col-span-2 space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Çalışma Saatleri</label><input value={workingHours} onChange={e => setWorkingHours(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 font-bold outline-none focus:ring-2" /></div>
-                </div>
-              </div>
-
-              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-8">
-                <div className="flex items-center justify-between border-b border-slate-50 pb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
-                      <CheckCircle className="text-emerald-500 w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-black text-slate-900">İşletme Özellikleri</h3>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tesis Detayları</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={addFeature}
-                    className="p-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                </div>
-
+                <div className="flex items-center justify-between border-b border-slate-50 pb-6"><div className="flex items-center gap-4"><div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center"><CheckCircle className="text-emerald-500 w-6 h-6" /></div><div><h3 className="font-black text-slate-900">İşletme Özellikleri</h3><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tesis Detayları</p></div></div><button onClick={addFeature} className="p-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors shadow-lg"><Plus className="w-5 h-5" /></button></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {businessFeatures.map((feature) => (
-                    <div key={feature.id} className={`p-4 rounded-2xl border-2 flex flex-col gap-4 transition-all ${feature.active ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 opacity-60'}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div 
-                            onClick={() => toggleFeature(feature.id)}
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer transition-all ${feature.active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}
-                          >
-                            <IconRenderer name={feature.icon} className="w-5 h-5" />
-                          </div>
-                          <input 
-                            value={feature.label} 
-                            onChange={(e) => updateFeature(feature.id, { label: e.target.value })}
-                            className="bg-transparent font-black text-xs uppercase tracking-tight outline-none w-full"
-                          />
-                        </div>
-                        <button onClick={() => removeFeature(feature.id)} className="text-slate-300 hover:text-rose-500 transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">İkon Adı (Lucide)</label>
-                        <input 
-                          value={feature.icon} 
-                          onChange={(e) => updateFeature(feature.id, { icon: e.target.value })}
-                          placeholder="Örn: Wifi, Dog, Baby..."
-                          className="w-full bg-white border border-slate-100 rounded-lg p-2 text-[10px] font-bold outline-none"
-                        />
-                      </div>
-                    </div>
+                    <div key={feature.id} className={`p-4 rounded-2xl border-2 flex flex-col gap-4 transition-all ${feature.active ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 opacity-60'}`}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div onClick={() => toggleFeature(feature.id)} className={`w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer transition-all ${feature.active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}><IconRenderer name={feature.icon} className="w-5 h-5" /></div><input value={feature.label} onChange={(e) => updateFeature(feature.id, { label: e.target.value })} className="bg-transparent font-black text-xs uppercase tracking-tight outline-none w-full" /></div><button onClick={() => removeFeature(feature.id)} className="text-slate-300 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button></div><div className="space-y-2"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">İkon Adı (Lucide)</label><input value={feature.icon} onChange={(e) => updateFeature(feature.id, { icon: e.target.value })} placeholder="Örn: Wifi, Dog, Baby..." className="w-full bg-white border border-slate-100 rounded-lg p-2 text-[10px] font-bold outline-none" /></div></div>
                   ))}
                 </div>
               </div>
@@ -721,9 +690,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
             <div className="fixed bottom-6 left-6 right-6 md:left-[calc(16rem+3rem)] md:right-12 z-40">
               <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-slate-200 shadow-2xl flex items-center justify-between">
-                <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
-                  {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Ayarları Kaydet
-                </button>
+                <button onClick={saveDesignSettings} disabled={saveLoading} className="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">{saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Ayarları Kaydet</button>
               </div>
             </div>
           </div>
@@ -740,6 +707,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Adı</label><input required value={editingProduct?.name || ''} onChange={e => setEditingProduct(p => ({...p!, name: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
                 <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fiyat</label><input required type="number" value={editingProduct?.price || ''} onChange={e => setEditingProduct(p => ({...p!, price: Number(e.target.value)}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
               </div>
+              <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Görsel URL</label><input value={editingProduct?.image || ''} onChange={e => setEditingProduct(p => ({...p!, image: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" /></div>
+              <div className="space-y-2"><label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Açıklama</label><textarea value={editingProduct?.description || ''} onChange={e => setEditingProduct(p => ({...p!, description: e.target.value}))} className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 outline-none focus:ring-2" rows={3} /></div>
               <button type="submit" disabled={saveLoading} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3">{saveLoading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} {editingProduct?.id ? 'Güncelle' : 'Ekle'}</button>
             </form>
           </div>
